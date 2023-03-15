@@ -18,7 +18,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    os.environ.get("AllowHosts"),
+    os.environ.get("ALLOW_HOST"),
 ]
 
 
