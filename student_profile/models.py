@@ -9,5 +9,3 @@ class Direction(models.Model):
 	class Meta:
 		verbose_name = 'Направление'
 		verbose_name_plural = 'Направления'
-
-class 
