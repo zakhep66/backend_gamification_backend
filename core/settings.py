@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'student_profile.apps.AppConfig',
+    'profile.apps.AppConfig',
     'user.apps.UserConfig',
 
     'rest_framework',
