@@ -33,7 +33,7 @@ class Student(User):
 	about = models.TextField(blank=True, null=True)
 	portfolio_link = models.URLField(blank=True, null=True)
 	in_lite = models.BooleanField(blank=False, null=False)
-	bank_account_id = models.ForeignKey('BankAccount', on_delete=models.CASCADE)
+	bank_account_id = models.OneToOneField('BankAccount', on_delete=models.CASCADE)
 	status = models.CharField(choices=STUDENT_STATUS, blank=False, null=False, default='active')
 
 	class Meta:
@@ -55,3 +55,35 @@ class Direction(models.Model):
 	class Meta:
 		verbose_name = 'Направление'
 		verbose_name_plural = 'Направления'
+
+
+class EducationDirection(models.Model):
+	student_id = models.ManyToManyField('Student')
+	name = models.CharField(max_length=50, blank=False, null=False)
+	# todo написать функцию для генерации пути до файла
+	icon = models.ImageField(blank=False, null=False, upload_to=...)
+
+	class Meta:
+		verbose_name = 'Направление'
+		verbose_name_plural = 'Направления'
+
+
+class BankAccount(models.Model):
+	balance = models.PositiveIntegerField(blank=False, null=False)
+	is_active = models.BooleanField(blank=False, null=False, default=True)
+
+	class Meta:
+		verbose_name = 'Банковский аккаунт'
+		verbose_name_plural = 'Банковские аккаунты'
+
+
+class Transaction(models.Model):
+	from_id = models.ForeignKey('BankAccount', on_delete=models.CASCADE, blank=False, null=False)
+	to_id = models.ForeignKey('BankAccount', on_delete=models.CASCADE, blank=False, null=False)
+	comment = models.CharField(max_length=100, blank=True, null=True, verbose_name='комментарий к транзакции')
+	sum = models.PositiveIntegerField(blank=False, null=False)
+	date_time = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		verbose_name = 'Транзакция'
+		verbose_name_plural = 'Транзакции'
