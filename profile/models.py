@@ -1,6 +1,7 @@
 from django.db import models
 
 from user.models import User
+from utils import get_upload_path
 
 
 class Employee(User):
@@ -34,7 +35,7 @@ class Student(User):
 	portfolio_link = models.URLField(blank=True, null=True)
 	in_lite = models.BooleanField(blank=False, null=False)
 	bank_account_id = models.OneToOneField('BankAccount', on_delete=models.CASCADE)
-	status = models.CharField(choices=STUDENT_STATUS, blank=False, null=False, default='active')
+	status = models.CharField(max_length=50, choices=STUDENT_STATUS, blank=False, null=False, default='active')
 
 	class Meta:
 		verbose_name = 'Студент'
@@ -50,7 +51,7 @@ class Administrator(User):
 class Direction(models.Model):
 	student_id = models.ManyToManyField('Student')
 	name = models.CharField(max_length=50, blank=False, null=False)
-	icon = models.ImageField(upload_to=...)  # todo написать бла бла бла
+	icon = models.ImageField(upload_to=get_upload_path)
 
 	class Meta:
 		verbose_name = 'Направление'
@@ -60,8 +61,7 @@ class Direction(models.Model):
 class EducationDirection(models.Model):
 	student_id = models.ManyToManyField('Student')
 	name = models.CharField(max_length=50, blank=False, null=False)
-	# todo написать функцию для генерации пути до файла
-	icon = models.ImageField(blank=False, null=False, upload_to=...)
+	icon = models.ImageField(blank=False, null=False, upload_to=get_upload_path)
 
 	class Meta:
 		verbose_name = 'Направление'
@@ -78,8 +78,8 @@ class BankAccount(models.Model):
 
 
 class Transaction(models.Model):
-	from_id = models.ForeignKey('BankAccount', on_delete=models.CASCADE, blank=False, null=False)
-	to_id = models.ForeignKey('BankAccount', on_delete=models.CASCADE, blank=False, null=False)
+	from_id = models.ForeignKey('BankAccount', on_delete=models.CASCADE, blank=False, null=False, related_name='from_id')
+	to_id = models.ForeignKey('BankAccount', on_delete=models.CASCADE, blank=False, null=False, related_name='to_id')
 	comment = models.CharField(max_length=100, blank=True, null=True, verbose_name='комментарий к транзакции')
 	sum = models.PositiveIntegerField(blank=False, null=False)
 	date_time = models.DateTimeField(auto_now_add=True)

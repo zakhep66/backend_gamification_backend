@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 
+from utils import get_upload_path
+
 
 class UserManager(BaseUserManager):
 	def create_user(self, email, password=None, **extra_fields):
@@ -22,8 +24,7 @@ class User(AbstractBaseUser):
 	email = models.EmailField(unique=True)
 	first_name = models.CharField(max_length=50)
 	last_name = models.CharField(max_length=50)
-	# todo прописать функцию для генерации имени картинки и пути к ней
-	avatar = models.ImageField(upload_to=..., blank=True, null=True)
+	avatar = models.ImageField(upload_to=get_upload_path, blank=True, null=True)
 	is_active = models.BooleanField(default=True)
 	is_staff = models.BooleanField(default=False)
 	is_superuser = models.BooleanField(default=False)
