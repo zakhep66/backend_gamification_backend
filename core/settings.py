@@ -21,6 +21,7 @@ ALLOWED_HOSTS = [
     os.environ.get("ALLOW_HOST"),
 ]
 
+AUTH_USER_MODEL = 'user.User'  # новая модель авторизации
 
 # Application definition
 
@@ -31,7 +32,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'app.apps.AppConfig',
+    'student_profile.apps.AppConfig',
+    'user.apps.UserConfig',
 
     'rest_framework',
 
