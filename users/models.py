@@ -27,7 +27,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         # Проверяем, есть ли уже запись в базе данных для этого объекта
         if self.pk:
             # Если пароль был изменен, то хешируем его заново
-            old_student = Student.objects.get(pk=self.pk)
+            old_student = CustomUser.objects.get(pk=self.pk)
             if self.password != old_student.password:
                 self.password = make_password(self.password)
 
@@ -37,7 +37,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
-class Employee(CustomUser):
+class Employee(models.Model):
     EMPLOYEE_ROLE = (
         ('main_admin', 'Главный администратор'),  # Тимур
         ('manager', 'Админ'),
@@ -45,6 +45,7 @@ class Employee(CustomUser):
         ('curator', 'Куратор')
     )
 
+    # user = models.OneToOneField('CustomUser', on_delete=models.CASCADE)
     employee_role = models.CharField(max_length=50, choices=EMPLOYEE_ROLE, null=False, blank=False)
     # education_direction = models.ForeignKey('EducationDirection', on_delete=models.CASCADE, blank=True, null=True)
     one_fact = models.CharField(max_length=100, blank=True, null=True)
@@ -56,13 +57,14 @@ class Employee(CustomUser):
         verbose_name_plural = 'Сотрудники'
 
 
-class Student(CustomUser):
+class Student(models.Model):
     STUDENT_STATUS = (
         ('active', 'Активный'),
         ('not_active', 'Неактивный'),
         ('block', 'Заблокирован'),
     )
 
+    # user = models.OneToOneField('CustomUser', on_delete=models.CASCADE)
     telegram = models.CharField(max_length=100, blank=True, null=True)
     about = models.TextField(blank=True, null=True)
     portfolio_link = models.URLField(blank=True, null=True)
