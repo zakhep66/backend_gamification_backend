@@ -37,7 +37,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
-class Employee(models.Model):
+class Employee(CustomUser):
     EMPLOYEE_ROLE = (
         ('main_admin', 'Главный администратор'),  # Тимур
         ('manager', 'Админ'),
@@ -57,7 +57,7 @@ class Employee(models.Model):
         verbose_name_plural = 'Сотрудники'
 
 
-class Student(models.Model):
+class Student(CustomUser):
     STUDENT_STATUS = (
         ('active', 'Активный'),
         ('not_active', 'Неактивный'),
