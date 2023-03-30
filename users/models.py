@@ -18,25 +18,19 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 	objects = CustomUserManager()
 
-	# def save(self, *args, **kwargs):
-	#     """Переопределил метод сохранения модели, чтобы при создании или
-	#     изменении модели не через API пароль хешировался
-	#     """
-	#
-	#     # Проверяем, есть ли уже запись в базе данных для этого объекта
-	#     if self.pk:
-	#         # Если пароль был изменен, то хешируем его заново
-	#         old_student = CustomUser.objects.get(pk=self.pk)
-	#         if self.password != old_student.password:
-	#             self.password = make_password(self.password)
-	#
-	#     super().save(*args, **kwargs)
-
 	def __str__(self):
 		return self.email
 
 
-class Employee(CustomUser):
+class AbstractUserModel(models.Model):
+	first_name = models.CharField(max_length=50, null=False, blank=False)
+	last_name = models.CharField(max_length=50, null=False, blank=False)
+
+	class Meta:
+		abstract = True
+
+
+class Employee(CustomUser, AbstractUserModel):
 	EMPLOYEE_ROLE = (
 		('main_admin', 'Главный администратор'),  # Тимур
 		('manager', 'Админ'),
@@ -46,8 +40,8 @@ class Employee(CustomUser):
 
 	employee_role = models.CharField(max_length=50, choices=EMPLOYEE_ROLE, null=False, blank=False)
 	# education_direction = models.ForeignKey('EducationDirection', on_delete=models.CASCADE, blank=True, null=True)
-	one_fact = models.CharField(max_length=100, blank=True, null=True)
-	two_fact = models.CharField(max_length=100, blank=True, null=True)
+	first_fact = models.CharField(max_length=100, blank=True, null=True)
+	second_fact = models.CharField(max_length=100, blank=True, null=True)
 	false_fact = models.CharField(max_length=100, blank=True, null=True)
 
 	class Meta:
@@ -55,7 +49,7 @@ class Employee(CustomUser):
 		verbose_name_plural = 'Сотрудники'
 
 
-class Student(CustomUser):
+class Student(CustomUser, AbstractUserModel):
 	STUDENT_STATUS = (
 		('active', 'Активный'),
 		('not_active', 'Неактивный'),
