@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Student, Employee
+from .models import Student, Employee, Direction, BankAccount
 
 
 class StudentAdmin(admin.ModelAdmin):
@@ -22,3 +22,5 @@ class EmployeeAdmin(admin.ModelAdmin):
 
 admin.site.register(Student, StudentAdmin)
 admin.site.register(Employee, EmployeeAdmin)
+admin.site.register(Direction)
+admin.site.register(BankAccount)

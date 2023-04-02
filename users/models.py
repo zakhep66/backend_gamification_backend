@@ -1,5 +1,4 @@
 from django.contrib.auth.base_user import AbstractBaseUser
-# from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
@@ -39,7 +38,7 @@ class Employee(CustomUser, AbstractUserModel):
 	)
 
 	employee_role = models.CharField(max_length=50, choices=EMPLOYEE_ROLE, null=False, blank=False)
-	# education_direction = models.ForeignKey('EducationDirection', on_delete=models.CASCADE, blank=True, null=True)
+	direction = models.ForeignKey('Direction', on_delete=models.CASCADE, blank=True, null=True, related_name='Направление')
 	first_fact = models.CharField(max_length=100, blank=True, null=True)
 	second_fact = models.CharField(max_length=100, blank=True, null=True)
 	false_fact = models.CharField(max_length=100, blank=True, null=True)
@@ -60,9 +59,34 @@ class Student(CustomUser, AbstractUserModel):
 	about = models.TextField(blank=True, null=True)
 	portfolio_link = models.URLField(blank=True, null=True)
 	in_lite = models.BooleanField(blank=False, null=False)
-	# bank_account_id = models.OneToOneField('BankAccount', on_delete=models.CASCADE)
+	bank_account_id = models.OneToOneField('BankAccount', on_delete=models.CASCADE, related_name='Банковский_аккаунт')
 	status = models.CharField(max_length=50, choices=STUDENT_STATUS, blank=False, null=False, default='active')
+	direction = models.ManyToManyField('Direction', related_name='direction')
 
 	class Meta:
 		verbose_name = 'Студент'
 		verbose_name_plural = 'Студенты'
+
+
+class BankAccount(models.Model):
+	balance = models.PositiveIntegerField()
+	is_active = models.BooleanField(default=True)
+
+	def __str__(self):
+		return 'Баланс активен' if self.is_active is True else 'Баланс заблокирован'
+
+	class Meta:
+		verbose_name = 'Банковский аккаунт'
+		verbose_name_plural = 'Банковские аккаунты'
+
+
+class Direction(models.Model):
+	name = models.CharField(max_length=100, blank=False, null=False)
+	icon = models.CharField(max_length=255, blank=False, null=False)
+
+	def __str__(self):
+		return self.name
+
+	class Meta:
+		verbose_name = 'Направление'
+		verbose_name_plural = 'Направления'
