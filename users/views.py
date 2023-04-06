@@ -29,7 +29,7 @@ class StudentViewSet(viewsets.ModelViewSet):
     """
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
-    permission_classes = [IsAdminUser, ]
+    permission_classes = [IsAuthenticated, ]
     authentication_classes = [CustomAuthentication, ]
 
 
@@ -39,7 +39,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     """
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
-    permission_classes = [IsAdminUser, ]
+    permission_classes = [IsAuthenticated, ]
     authentication_classes = [CustomAuthentication, ]
 
 
@@ -58,6 +58,7 @@ class ProfileView(APIView):
                     'employee_role': employee.employee_role,
                     'first_name': employee.first_name,
                     'last_name': employee.last_name,
+                    'image': employee.image.url,
                     'first_fact': employee.first_fact,
                     'second_fact': employee.second_fact,
                     'false_fact': employee.false_fact
@@ -74,6 +75,7 @@ class ProfileView(APIView):
                     'email': student.email,
                     'first_name': student.first_name,
                     'last_name': student.last_name,
+                    'image': student.image.url,
                     'telegram': student.telegram,
                     'balance': student.bank_account_id.balance,
                     'portfolio_link': student.portfolio_link,

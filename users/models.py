@@ -3,6 +3,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
 from users.managers import CustomUserManager, StudentManager, EmployeeManager
+from utils import get_upload_path_for_users
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
@@ -24,6 +25,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
 class AbstractUserModel(models.Model):
+    image = models.ImageField(upload_to=get_upload_path_for_users)
     first_name = models.CharField(max_length=50, null=False, blank=False)
     last_name = models.CharField(max_length=50, null=False, blank=False)
 
@@ -37,7 +39,6 @@ class Employee(CustomUser, AbstractUserModel):
         ('coach', 'Коуч'),
         ('curator', 'Куратор')
     )
-
     employee_role = models.CharField(max_length=50, choices=EMPLOYEE_ROLE, null=False, blank=False)
     direction = models.ForeignKey('Direction', on_delete=models.CASCADE, blank=True, null=True,
                                   related_name='Направление')
