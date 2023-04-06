@@ -33,10 +33,6 @@ class StudentSerializer(BaseUserSerializer):
 
 
 class EmployeeSerializer(BaseUserSerializer):
-    first_name = serializers.CharField(source='user.first_name', read_only=True)
-    last_name = serializers.CharField(source='user.last_name', read_only=True)
-    employee_role = serializers.CharField(source='user.employee_role', read_only=True)
-
     class Meta:
         model = Employee
         fields = BaseUserSerializer.Meta.fields + ['employee_role', 'first_fact', 'second_fact', 'false_fact']

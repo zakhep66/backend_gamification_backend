@@ -2,7 +2,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
-from users.managers import CustomUserManager
+from users.managers import CustomUserManager, StudentManager, EmployeeManager
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
@@ -23,15 +23,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
-# class AbstractUserModel(models.Model):
-#     first_name = models.CharField(max_length=50, null=False, blank=False)
-#     last_name = models.CharField(max_length=50, null=False, blank=False)
-#
-#     class Meta:
-#         abstract = True
+class AbstractUserModel(models.Model):
+    first_name = models.CharField(max_length=50, null=False, blank=False)
+    last_name = models.CharField(max_length=50, null=False, blank=False)
+
+    class Meta:
+        abstract = True
 
 
-class Employee(CustomUser):
+class Employee(CustomUser, AbstractUserModel):
     EMPLOYEE_ROLE = (
         ('manager', 'Админ'),
         ('coach', 'Коуч'),
@@ -45,15 +45,14 @@ class Employee(CustomUser):
     second_fact = models.CharField(max_length=100, blank=True, null=True)
     false_fact = models.CharField(max_length=100, blank=True, null=True)
 
-    first_name = models.CharField(max_length=50, null=False, blank=False)
-    last_name = models.CharField(max_length=50, null=False, blank=False)
+    objects = EmployeeManager()
 
     class Meta:
         verbose_name = 'Сотрудник'
         verbose_name_plural = 'Сотрудники'
 
 
-class Student(CustomUser):
+class Student(CustomUser, AbstractUserModel):
     STUDENT_STATUS = (
         ('active', 'Активный'),
         ('not_active', 'Неактивный'),
@@ -68,14 +67,16 @@ class Student(CustomUser):
     status = models.CharField(max_length=50, choices=STUDENT_STATUS, blank=False, null=False, default='active')
     direction = models.ManyToManyField('Direction', related_name='direction')
 
-    first_name = models.CharField(max_length=50, null=False, blank=False)
-    last_name = models.CharField(max_length=50, null=False, blank=False)
+    objects = StudentManager()
 
     class Meta:
         verbose_name = 'Студент'
         verbose_name_plural = 'Студенты'
 
 
+#####################################
+#####################################
+#####################################
 class BankAccount(models.Model):
     balance = models.PositiveIntegerField()
     is_active = models.BooleanField(default=True)

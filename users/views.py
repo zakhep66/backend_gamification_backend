@@ -1,11 +1,13 @@
+import jwt
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication, BaseAuthentication
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 
+from core import settings
 from .models import Student, Employee
 from .serializers import StudentSerializer, EmployeeSerializer
 
@@ -43,17 +45,46 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 
 class ProfileView(APIView):
     authentication_classes = [CustomAuthentication, ]
+    permission_classes = [IsAuthenticated, ]
 
     def get(self, request):
-        # Получаем модель пользователя из аутентификационного класса
-        user_model = request.user.__class__
+        user_id = request.user.id
+        try:
+            employee = Employee.objects.get(id=user_id)
+            # профиль сотрудника
+            return Response(
+                {
+                    'email': employee.email,
+                    'employee_role': employee.employee_role,
+                    'first_name': employee.first_name,
+                    'last_name': employee.last_name,
+                    'first_fact': employee.first_fact,
+                    'second_fact': employee.second_fact,
+                    'false_fact': employee.false_fact
+                }
+            )
+        except Employee.DoesNotExist:
+            pass
 
-        # Сериализуем данные пользователя в зависимости от его модели
-        if user_model.is_staff is False:
-            serializer = StudentSerializer(instance=request.user)
-        elif user_model.is_staff:
-            serializer = EmployeeSerializer(instance=request.user)
-        else:
-            return Response({'detail': 'Invalid user type in token'})
+        try:
+            student = Student.objects.get(id=user_id)
+            # профиль студента
+            return Response(
+                {
+                    'email': student.email,
+                    'first_name': student.first_name,
+                    'last_name': student.last_name,
+                    'telegram': student.telegram,
+                    'balance': student.bank_account_id.balance,
+                    'portfolio_link': student.portfolio_link,
+                    'directions': [
+                        {'name': direction.name, 'link': direction.icon}
+                        for direction in student.direction.all()
+                    ],
+                    'about': student.about
+                }
+            )
+        except Student.DoesNotExist:
+            pass
 
-        return Response(serializer.data)
+        return Response({'error': 'Пользователь не найден.'}, status=404)
