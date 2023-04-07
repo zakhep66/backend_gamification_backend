@@ -23,7 +23,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
 class AbstractUserModel(models.Model):
-    image = models.ImageField(upload_to=get_upload_path_for_users)
+    image = models.ImageField(upload_to=get_upload_path_for_users, null=False, blank=False)
     first_name = models.CharField(max_length=50, null=False, blank=False)
     last_name = models.CharField(max_length=50, null=False, blank=False)
 
@@ -81,7 +81,7 @@ class BankAccount(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return 'Баланс активен' if self.is_active is True else 'Баланс заблокирован'
+        return 'Баланс активен' if self.is_active else 'Баланс заблокирован'
 
     class Meta:
         verbose_name = 'Банковский аккаунт'
