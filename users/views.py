@@ -1,14 +1,12 @@
-import jwt
 from rest_framework import viewsets
-from rest_framework.authentication import TokenAuthentication, BaseAuthentication
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.authentication import BaseAuthentication
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.exceptions import AuthenticationFailed
 
-from core import settings
 from .models import Student, Employee
+from .permissions import IsEmployee
 from .serializers import StudentSerializer, EmployeeSerializer
 
 
@@ -29,8 +27,19 @@ class StudentViewSet(viewsets.ModelViewSet):
     """
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsEmployee, IsAdminUser, ]
     authentication_classes = [CustomAuthentication, ]
+
+    def get_permissions(self):
+        """
+        Определяем права доступа к методам.
+        """
+
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [IsAuthenticated, ]
+        else:
+            permission_classes = self.permission_classes
+        return [permission() for permission in permission_classes]
 
 
 class EmployeeViewSet(viewsets.ModelViewSet):
