@@ -23,7 +23,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
 class AbstractUserModel(models.Model):
-    image = models.ImageField(upload_to=get_upload_path_for_users, null=False, blank=False)
+    USER_ROLE = (
+        ('manager', 'Админ'),
+        ('coach', 'Коуч'),
+        ('curator', 'Куратор'),
+        ('student', 'Студент'),
+    )
+
+    user_role = models.CharField(choices=USER_ROLE, max_length=50, null=False, blank=False)
+    image = models.ImageField(upload_to=get_upload_path_for_users, null=True, blank=False)
     first_name = models.CharField(max_length=50, null=False, blank=False)
     last_name = models.CharField(max_length=50, null=False, blank=False)
 
@@ -32,12 +40,6 @@ class AbstractUserModel(models.Model):
 
 
 class Employee(CustomUser, AbstractUserModel):
-    EMPLOYEE_ROLE = (
-        ('manager', 'Админ'),
-        ('coach', 'Коуч'),
-        ('curator', 'Куратор')
-    )
-    employee_role = models.CharField(max_length=50, choices=EMPLOYEE_ROLE, null=False, blank=False)
     direction = models.ForeignKey('Direction', on_delete=models.CASCADE, blank=True, null=True,
                                   related_name='Направление')
     first_fact = models.CharField(max_length=100, blank=True, null=True)

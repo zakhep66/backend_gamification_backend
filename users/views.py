@@ -84,7 +84,7 @@ class ProfileView(APIView):
             return Response(
                 {
                     'email': employee.email,
-                    'employee_role': employee.employee_role,
+                    'user_role': employee.user_role,
                     'first_name': employee.first_name,
                     'last_name': employee.last_name,
                     'image': employee.image.url,
@@ -102,6 +102,7 @@ class ProfileView(APIView):
             return Response(
                 {
                     'email': student.email,
+                    'user_role': student.user_role,
                     'first_name': student.first_name,
                     'last_name': student.last_name,
                     'image': student.image.url,
