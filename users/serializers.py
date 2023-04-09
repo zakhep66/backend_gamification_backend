@@ -7,9 +7,9 @@ from .models import Student, Employee, CustomUser, BankAccount
 class BaseUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
-    # class Meta:
-    #     model = CustomUser
-    #     fields = ['id', 'first_name', 'last_name', 'email', 'password']
+    class Meta:
+        model = ...
+        fields = ['id', 'first_name', 'last_name', 'email', 'password', 'user_role']
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
@@ -31,13 +31,20 @@ class BaseUserSerializer(serializers.ModelSerializer):
 class BankAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = BankAccount
-        fields = '__all__'
+        fields = ['id', 'balance', ]
 
 
 class StudentSerializer(BaseUserSerializer):
-    class Meta:  # (BaseUserSerializer.Meta):
+    balance = serializers.SerializerMethodField()
+
+    def get_balance(self, obj):
+        bank_account = obj.bank_account_id
+        return bank_account.balance if bank_account else None
+
+    class Meta:
         model = Student
-        fields = '__all__'  # BaseUserSerializer.Meta.fields + ['telegram', 'in_lite', 'status', 'portfolio_link', 'about']
+        fields = BaseUserSerializer.Meta.fields + ['telegram', 'in_lite', 'status', 'portfolio_link', 'about',
+                                                   'balance', 'image']
 
 
 # class ShortStudentInfoSerializer(serializers.ModelSerializer):
@@ -49,4 +56,4 @@ class StudentSerializer(BaseUserSerializer):
 class EmployeeSerializer(BaseUserSerializer):
     class Meta:
         model = Employee
-        fields = '__all__'  # BaseUserSerializer.Meta.fields + ['employee_role', 'first_fact', 'second_fact', 'false_fact']
+        fields = BaseUserSerializer.Meta.fields + ['first_fact', 'second_fact', 'false_fact']

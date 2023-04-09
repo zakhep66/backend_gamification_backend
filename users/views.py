@@ -42,6 +42,11 @@ class StudentViewSet(viewsets.ModelViewSet):
             permission_classes = self.permission_classes
         return [permission() for permission in permission_classes]
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = StudentSerializer(queryset, many=True)
+        return Response(serializer.data)
+
     def create(self, request, *args, **kwargs):
         bank_account_data = request.data.get('bank_account')
         if bank_account_data:
