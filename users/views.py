@@ -8,7 +8,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from .models import Student, Employee, BankAccount
 from .permissions import IsEmployee
 from .serializers import StudentSerializer, EmployeeSerializer, BankAccountSerializer, \
-    ShortStudentInfoSerializer  # , ShortStudentInfoSerializer
+    ShortStudentInfoSerializer
 
 
 class CustomAuthentication(BaseAuthentication):
@@ -94,23 +94,8 @@ class ProfileView(APIView):
             employee = Employee.objects.get(id=user_id)
             # профиль сотрудника
 
-            data = {
-                'email': employee.email,
-                'user_role': employee.user_role,
-                'first_name': employee.first_name,
-                'last_name': employee.last_name,
-            }
-
-            if employee.image:
-                data['image'] = employee.image.url
-            if employee.first_fact:
-                data['first_fact'] = employee.first_fact
-            if employee.second_fact:
-                data['second_fact'] = employee.second_fact
-            if employee.false_fact:
-                data['false_fact'] = employee.false_fact
-
-            return Response(data)
+            serializer = EmployeeSerializer(employee)
+            return Response(serializer.data)
 
         except Employee.DoesNotExist:
             pass
@@ -119,33 +104,60 @@ class ProfileView(APIView):
             student = Student.objects.get(id=user_id)
             # профиль студента
 
-            data = {
-                'email': student.email,
-                'user_role': student.user_role,
-                'first_name': student.first_name,
-                'last_name': student.last_name,
-                'balance': student.bank_account_id.balance,
-                'about': student.about
-            }
-
-            if student.image:
-                data['image'] = student.image.url
-            if student.telegram:
-                data['telegram'] = student.telegram
-            if student.about:
-                data['about'] = student.about
-            if student.portfolio_link:
-                data['portfolio_link'] = student.portfolio_link
-            if student.direction.all().exists():
-                data['directions'] = [
-                    {'name': direction.name, 'link': direction.icon}
-                    for direction in student.direction.all()
-                ]
-
-            return Response(data)
+            serializer = StudentSerializer(student)
+            return Response(serializer.data)
 
         except Student.DoesNotExist:
             pass
 
         return Response({'error': 'Пользователь не найден.'}, status=404)
 
+    def patch(self, request):
+        user_id = request.user.id
+
+        try:
+            employee = Employee.objects.get(id=user_id)
+            # обновление профиля сотрудника
+
+            serializer = EmployeeSerializer(instance=employee, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            else:
+                return Response(serializer.errors, status=400)
+
+        except Employee.DoesNotExist:
+            pass
+
+        try:
+            student = Student.objects.get(id=user_id)
+            # обновление профиля студента
+
+            # получаем объект банковского счета, связанного со студентом
+            bank_account = student.bank_account_id
+
+            # получаем новое значение баланса из запроса
+            if new_balance := request.data.get('balance'):
+
+                # проверяем, что новое значение баланса является числом
+                if not isinstance(new_balance, int):
+                    return Response({'error': 'Неверный формат баланса.'}, status=400)
+
+                # изменяем баланс банковского счета и сохраняем изменения
+                bank_account.balance = new_balance
+                bank_account.save()
+
+            # возвращаем обновленные данные профиля студента
+
+            serializer = StudentSerializer(instance=student, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            else:
+                return Response(serializer.errors, status=400)
+
+
+        except Student.DoesNotExist:
+            pass
+
+        return Response({'error': 'Пользователь не найден.'}, status=404)
