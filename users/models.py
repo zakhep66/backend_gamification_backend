@@ -2,6 +2,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
+import utils
 from users.managers import CustomUserManager, StudentManager, EmployeeManager
 from utils import get_upload_path_for_users
 
@@ -40,7 +41,7 @@ class AbstractUserModel(models.Model):
 
 
 class Employee(CustomUser, AbstractUserModel):
-    direction = models.ForeignKey('Direction', on_delete=models.CASCADE, blank=True, null=True,
+    direction = models.ForeignKey('Direction', on_delete=models.DO_NOTHING, blank=True, null=True,
                                   related_name='Направление')
     first_fact = models.CharField(max_length=100, blank=True, null=True)
     second_fact = models.CharField(max_length=100, blank=True, null=True)
@@ -66,7 +67,7 @@ class Student(CustomUser, AbstractUserModel):
     in_lite = models.BooleanField(blank=False, null=False)
     bank_account_id = models.OneToOneField('BankAccount', on_delete=models.CASCADE, related_name='Банковский_аккаунт')
     status = models.CharField(max_length=50, choices=STUDENT_STATUS, blank=False, null=False, default='active')
-    direction = models.ManyToManyField('Direction', related_name='direction')
+    direction = models.ManyToManyField('Direction', related_name='direction', null=True, blank=True)
 
     objects = StudentManager()
 
@@ -92,7 +93,7 @@ class BankAccount(models.Model):
 
 class Direction(models.Model):
     name = models.CharField(max_length=100, blank=False, null=False)
-    icon = models.CharField(max_length=255, blank=False, null=False)
+    icon = models.ImageField(upload_to=utils.get_upload_path_for_icon, blank=False, null=False)
 
     def __str__(self):
         return self.name
