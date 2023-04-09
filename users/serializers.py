@@ -1,7 +1,7 @@
 from rest_framework import serializers, status
 from rest_framework.response import Response
 
-from .models import Student, Employee, CustomUser, BankAccount
+from .models import Student, Employee, CustomUser, BankAccount, Direction
 
 
 class BaseUserSerializer(serializers.ModelSerializer):
@@ -34,23 +34,38 @@ class BankAccountSerializer(serializers.ModelSerializer):
         fields = ['id', 'balance', ]
 
 
-class StudentSerializer(BaseUserSerializer):
-    balance = serializers.SerializerMethodField()
-
+class GetStudentBalance:
     def get_balance(self, obj):
         bank_account = obj.bank_account_id
         return bank_account.balance if bank_account else None
 
+
+class StudentSerializer(BaseUserSerializer, GetStudentBalance):
+    balance = serializers.SerializerMethodField()
+
     class Meta:
         model = Student
         fields = BaseUserSerializer.Meta.fields + ['telegram', 'in_lite', 'status', 'portfolio_link', 'about',
-                                                   'balance', 'image']
+                                                   'balance', 'image', ]
 
 
-# class ShortStudentInfoSerializer(serializers.ModelSerializer):
-# 	class Meta:
-# 		model = Student
-# 		fields = ['first_name', 'last_name', 'bank_account_id__balance']
+class DirectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Direction
+        fields = ['name', 'icon']
+
+
+class ShortStudentInfoSerializer(serializers.ModelSerializer, GetStudentBalance):
+    balance = serializers.SerializerMethodField()
+    direction = DirectionSerializer(many=True)
+
+    def get_direction(self, obj):
+        direction = obj.direction
+        return DirectionSerializer(direction, many=True).data
+
+    class Meta:
+        model = Student
+        fields = ['id', 'first_name', 'last_name', 'balance', 'image', 'direction']
 
 
 class EmployeeSerializer(BaseUserSerializer):

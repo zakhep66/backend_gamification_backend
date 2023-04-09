@@ -7,7 +7,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Student, Employee, BankAccount
 from .permissions import IsEmployee
-from .serializers import StudentSerializer, EmployeeSerializer, BankAccountSerializer  # , ShortStudentInfoSerializer
+from .serializers import StudentSerializer, EmployeeSerializer, BankAccountSerializer, \
+    ShortStudentInfoSerializer  # , ShortStudentInfoSerializer
 
 
 class CustomAuthentication(BaseAuthentication):
@@ -27,6 +28,7 @@ class StudentViewSet(viewsets.ModelViewSet):
     """
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
+    permission_classes = [IsAuthenticated, ]
     authentication_classes = [CustomAuthentication, ]
 
     def get_permissions(self):
@@ -36,7 +38,7 @@ class StudentViewSet(viewsets.ModelViewSet):
 
         if self.action in ['list', 'retrieve']:
             permission_classes = [IsAuthenticated, ]
-        elif self.action == 'create':
+        elif self.action in ['create', 'partial_update', 'update']:
             permission_classes = [IsEmployee, ]
         else:
             permission_classes = self.permission_classes
@@ -60,11 +62,16 @@ class StudentViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
 
-# class ShortStudentInfoViewSet(viewsets.ModelViewSet):
-# 	queryset = Student.objects.all()
-# 	serializer_class = ShortStudentInfoSerializer
-# 	permission_classes = [IsAuthenticated, ]
-# 	authentication_classes = [CustomAuthentication, ]
+class ShortStudentInfoViewSet(viewsets.ModelViewSet):
+    queryset = Student.objects.all()
+    serializer_class = ShortStudentInfoSerializer
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [CustomAuthentication, ]
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
 
 
 class EmployeeViewSet(viewsets.ModelViewSet):
@@ -86,42 +93,59 @@ class ProfileView(APIView):
         try:
             employee = Employee.objects.get(id=user_id)
             # профиль сотрудника
-            return Response(
-                {
-                    'email': employee.email,
-                    'user_role': employee.user_role,
-                    'first_name': employee.first_name,
-                    'last_name': employee.last_name,
-                    'image': employee.image.url,
-                    'first_fact': employee.first_fact,
-                    'second_fact': employee.second_fact,
-                    'false_fact': employee.false_fact
-                }
-            )
+
+            data = {
+                'email': employee.email,
+                'user_role': employee.user_role,
+                'first_name': employee.first_name,
+                'last_name': employee.last_name,
+            }
+
+            if employee.image:
+                data['image'] = employee.image.url
+            if employee.first_fact:
+                data['first_fact'] = employee.first_fact
+            if employee.second_fact:
+                data['second_fact'] = employee.second_fact
+            if employee.false_fact:
+                data['false_fact'] = employee.false_fact
+
+            return Response(data)
+
         except Employee.DoesNotExist:
             pass
 
         try:
             student = Student.objects.get(id=user_id)
             # профиль студента
-            return Response(
-                {
-                    'email': student.email,
-                    'user_role': student.user_role,
-                    'first_name': student.first_name,
-                    'last_name': student.last_name,
-                    'image': student.image.url,
-                    'telegram': student.telegram,
-                    'balance': student.bank_account_id.balance,
-                    'portfolio_link': student.portfolio_link,
-                    'directions': [
-                        {'name': direction.name, 'link': direction.icon}
-                        for direction in student.direction.all()
-                    ],
-                    'about': student.about
-                }
-            )
+
+            data = {
+                'email': student.email,
+                'user_role': student.user_role,
+                'first_name': student.first_name,
+                'last_name': student.last_name,
+                'balance': student.bank_account_id.balance,
+                'about': student.about
+            }
+
+            if student.image:
+                data['image'] = student.image.url
+            if student.telegram:
+                data['telegram'] = student.telegram
+            if student.about:
+                data['about'] = student.about
+            if student.portfolio_link:
+                data['portfolio_link'] = student.portfolio_link
+            if student.direction.all().exists():
+                data['directions'] = [
+                    {'name': direction.name, 'link': direction.icon}
+                    for direction in student.direction.all()
+                ]
+
+            return Response(data)
+
         except Student.DoesNotExist:
             pass
 
         return Response({'error': 'Пользователь не найден.'}, status=404)
+

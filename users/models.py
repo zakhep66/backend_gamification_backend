@@ -32,7 +32,7 @@ class AbstractUserModel(models.Model):
     )
 
     user_role = models.CharField(choices=USER_ROLE, max_length=50, null=False, blank=False)
-    image = models.ImageField(upload_to=get_upload_path_for_users, null=True, blank=False)
+    image = models.ImageField(upload_to=get_upload_path_for_users, null=True, blank=True)
     first_name = models.CharField(max_length=50, null=False, blank=False)
     last_name = models.CharField(max_length=50, null=False, blank=False)
 
