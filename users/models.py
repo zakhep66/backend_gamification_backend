@@ -76,9 +76,6 @@ class Student(CustomUser, AbstractUserModel):
         verbose_name_plural = 'Студенты'
 
 
-#####################################
-#####################################
-#####################################
 class BankAccount(models.Model):
     balance = models.PositiveIntegerField()
     is_active = models.BooleanField(default=True)
