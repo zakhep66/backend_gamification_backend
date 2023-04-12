@@ -14,7 +14,7 @@ class BankAccountSerializer(serializers.ModelSerializer):
 class DirectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Direction
-        fields = ['name', 'icon']
+        fields = '__all__'
 
 
 class ShortStudentInfoSerializer(serializers.ModelSerializer, GetStudentInfo):
@@ -42,6 +42,13 @@ class StudentSerializer(BaseUserSerializer, GetStudentInfo):
             'direction': {'required': False},
             'balance': {'required': False}
         }
+
+
+class StudentUpdateSerializer(BaseUserSerializer, GetStudentInfo):
+    class Meta:
+        model = Student
+        fields = BaseUserSerializer.Meta.fields + ['telegram', 'in_lite', 'status', 'portfolio_link', 'about',
+                                                   'image', 'direction']
 
 
 class EmployeeSerializer(BaseUserSerializer, GetEmployeeInfo):

@@ -9,7 +9,7 @@ from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from .models import Student, Employee, BankAccount
 from .permissions import IsEmployee
 from .serializers import StudentSerializer, EmployeeSerializer, BankAccountSerializer, \
-    ShortStudentInfoSerializer
+    ShortStudentInfoSerializer, StudentUpdateSerializer
 
 
 class CustomAuthentication(BaseAuthentication):
@@ -159,13 +159,12 @@ class ProfileView(APIView):
 
             # возвращаем обновленные данные профиля студента
 
-            serializer = StudentSerializer(instance=student, data=request.data, partial=True)
+            serializer = StudentUpdateSerializer(instance=student, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
             else:
                 return Response(serializer.errors, status=400)
-
 
         except Student.DoesNotExist:
             pass
