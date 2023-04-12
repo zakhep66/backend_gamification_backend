@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.exceptions import AuthenticationFailed
 
 from .models import Student, Employee, BankAccount
 from .permissions import IsEmployee
@@ -12,14 +13,18 @@ from .serializers import StudentSerializer, EmployeeSerializer, BankAccountSeria
 
 
 class CustomAuthentication(BaseAuthentication):
-    def authenticate(self, request):
+    def check_token(self, request):
         auth = JWTAuthentication()
+        return auth.authenticate(request)
 
-        # Получаем пользователя и токен из запроса
-        user, token = auth.authenticate(request)
-
-        # Возвращаем кортеж (пользователь, токен)
-        return user, token
+    def authenticate(self, request):
+        user_token = self.check_token(request)
+        if user_token is not None:
+            user, token = user_token
+            # дополнительная логика проверки пользовательских прав и разрешений здесь, если это необходимо
+            return user, token
+        else:
+            return None
 
 
 class StudentViewSet(viewsets.ModelViewSet):
@@ -47,6 +52,11 @@ class StudentViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = StudentSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = StudentSerializer(instance)
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
