@@ -45,6 +45,11 @@ class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 
 
 class StudentUpdateSerializer(BaseUserSerializer, GetStudentInfo):
+    # def validate(self, attrs):
+    #     print(attrs["direction"])
+    #     direction = [int(i) for i in attrs["direction"]]
+    #     attrs["direction"] = direction
+
     class Meta:
         model = Student
         fields = BaseUserSerializer.Meta.fields + ['telegram', 'in_lite', 'status', 'portfolio_link', 'about',
