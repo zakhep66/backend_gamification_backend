@@ -98,3 +98,18 @@ class Direction(models.Model):
     class Meta:
         verbose_name = 'Направление'
         verbose_name_plural = 'Направления'
+
+
+# class Buy(models.Model):
+# 	store_product_id = models.ForeignKey('StoreProduct', on_delete=models.CASCADE)
+# 	student_id = models.ForeignKey('Student', on_delete=models.CASCADE)
+# 	date_time = models.DateTimeField(auto_now_add=True)
+# 	content = models.TextField()
+# 	status = models.BooleanField(default=False)
+#
+# 	class Meta:
+# 		verbose_name = 'Покупка'
+# 		verbose_name_plural = 'Покупки'
+#
+# 	def __str__(self):
+# 		return self.student_id.first_name + 'купил' + self.store_product_id.name
