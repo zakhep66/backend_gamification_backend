@@ -83,6 +83,11 @@ class ShortStudentInfoViewSet(viewsets.ModelViewSet):
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = StudentSerializer(instance)
+        return Response(serializer.data)
+
 
 class EmployeeViewSet(viewsets.ModelViewSet):
     """
@@ -92,6 +97,16 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     serializer_class = EmployeeSerializer
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [CustomAuthentication, ]
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = EmployeeSerializer(instance)
+        return Response(serializer.data)
 
 
 class ProfileView(APIView):
