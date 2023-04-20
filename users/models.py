@@ -81,7 +81,7 @@ class BankAccount(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return 'Баланс активен' if self.is_active else 'Баланс заблокирован'
+        return 'Активен' if self.is_active else 'Заблокирован'
 
     class Meta:
         verbose_name = 'Банковский аккаунт'
