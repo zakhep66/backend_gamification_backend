@@ -10,7 +10,7 @@ from users.models import BankAccount, Student
 from users.user_views import CustomAuthentication
 from .permissions import IsStudent
 from .services import TransactionHandler
-from .tasks import process_transaction
+# from .tasks import process_transaction
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
@@ -30,8 +30,8 @@ class TransactionViewSet(viewsets.ModelViewSet):
     def transfer(self, request):
         return Response(
             *TransactionHandler.make_transaction(
-                from_account_id=Student.objects.get(id=request.user.id).bank_account_id.id,
-                to_account_id=request.data.get('to_id'),
+                sender_id=request.user.id,
+                recipient_id=request.data.get('to_id'),
                 amount=request.data.get('sum_count'),
                 transfer_type=request.data.get('transfer_type'),
                 comment=request.data.get('comment')
