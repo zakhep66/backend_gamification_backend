@@ -2,35 +2,36 @@ from django.db import transaction
 from rest_framework import status
 from rest_framework.response import Response
 
-from .models import Transaction, BankAccount
+from users.models import Student, BankAccount
+from .models import Transaction
 
 
 class TransactionHandler:
     @staticmethod
     @transaction.atomic()
-    def make_transaction(from_account_id, to_account_id, amount, transfer_type, comment=''):
+    def make_transaction(sender_id: int, recipient_id: int, amount: int, transfer_type: str, comment: str = ''):
         try:
-            from_account = BankAccount.objects.select_for_update().get(id=from_account_id)
-            to_account = BankAccount.objects.select_for_update().get(id=to_account_id)
-        except BankAccount.DoesNotExist:
-            return {'detail': 'Указанный счёт не существует'}, status.HTTP_400_BAD_REQUEST
+            sender_account = Student.objects.get(id=sender_id).bank_account_id
+            recipient_account = Student.objects.get(id=recipient_id).bank_account_id
+        except Student.DoesNotExist:
+            return {'detail': 'Пользователь не найден'}, status.HTTP_400_BAD_REQUEST
 
-        if not from_account.is_active or not to_account.is_active:
+        if not sender_account.is_active or not recipient_account.is_active:
             return {'detail': 'Один из счетов операции заблокирован'}, status.HTTP_400_BAD_REQUEST
-        elif from_account == to_account:
+        elif sender_account.id == recipient_account.id:
             return {'detail': 'Нельзя произвести перевод самому себе'}, status.HTTP_400_BAD_REQUEST
-        elif from_account.balance < amount:
+        elif sender_account.balance < amount:
             return {'detail': 'Недостаточно средств на счёте'}, status.HTTP_400_BAD_REQUEST
 
-        from_account.balance -= amount
-        to_account.balance += amount
+        sender_account.balance -= amount
+        recipient_account.balance += amount
 
-        from_account.save()
-        to_account.save()
+        sender_account.save()
+        recipient_account.save()
 
         transaction = Transaction.objects.create(
-            from_id=from_account,
-            to_id=to_account,
+            from_id=sender_account,
+            to_id=recipient_account,
             sum_count=amount,
             transfer_type=transfer_type,
             comment=comment
