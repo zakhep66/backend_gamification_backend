@@ -1,3 +1,6 @@
+import os
+
+from django.db import transaction
 from rest_framework import viewsets, status
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
@@ -59,17 +62,18 @@ class StudentViewSet(viewsets.ModelViewSet):
         serializer = StudentSerializer(instance)
         return Response(serializer.data)
 
+    @transaction.atomic()
     def create(self, request, *args, **kwargs):
-        bank_account_data = request.data.get('bank_account')
-        if bank_account_data:
-            bank_account_serializer = BankAccountSerializer(data=bank_account_data)
-            if bank_account_serializer.is_valid():
-                bank_account = bank_account_serializer.save()
-                request.data['bank_account_id'] = bank_account.id
-            else:
-                return Response(bank_account_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        bank_account = BankAccount.objects.create(
+            balance=int(os.environ.get("START_STUDENT_BALANCE"))
+        )
 
-        return super().create(request, *args, **kwargs)
+        student_data = request.data
+        serializer = self.get_serializer(data=student_data)
+        serializer.is_valid()
+        Student.objects.create(bank_account_id=bank_account, **student_data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ShortStudentInfoViewSet(viewsets.ModelViewSet):

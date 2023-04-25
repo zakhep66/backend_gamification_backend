@@ -27,8 +27,8 @@ class ShortStudentInfoSerializer(serializers.ModelSerializer, GetStudentInfo):
 
 
 class StudentSerializer(BaseUserSerializer, GetStudentInfo):
-    balance = serializers.SerializerMethodField()
-    direction = DirectionSerializer(many=True)
+    balance = serializers.SerializerMethodField(read_only=True)
+    direction = DirectionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Student
