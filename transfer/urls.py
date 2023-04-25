@@ -7,7 +7,7 @@ router = DefaultRouter()
 router.register(r'transaction', TransactionViewSet, basename='transaction')
 transfer = TransactionViewSet.as_view({'post': 'transfer'})
 all_student_transfer = TransactionViewSet.as_view({'post': 'all_student_transfer'})
-all_transfers = TransactionViewSet.as_view({'get': 'all_transfers'})
+all_transfers = TransactionViewSet.as_view({'post': 'all_transfers'})
 
 urlpatterns = [
     path('', include(router.urls)),
