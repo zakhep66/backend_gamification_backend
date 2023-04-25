@@ -85,8 +85,8 @@ class TransactionHandler:
             'sum_count': t.sum_count,
             'transfer_type': t.transfer_type,
             'comment': t.comment,
-            'from_id': Student.objects.get(bank_account_id=t.from_id.id).id,
-            'to_id': Student.objects.get(bank_account_id=t.to_id.id).id,
+            'from_id': Student.objects.get(bank_account_id=t.bank_id_sender.id).id,
+            'to_id': Student.objects.get(bank_account_id=t.bank_id_recipient.id).id,
             'date_time': t.date_time
         } for t in t_qs]
 
