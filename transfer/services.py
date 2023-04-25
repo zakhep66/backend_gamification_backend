@@ -32,9 +32,9 @@ class TransactionHandler:
         sender_account.save()
         recipient_account.save()
 
-        transaction = Transaction.objects.create(
-            from_id=sender_account,
-            to_id=recipient_account,
+        Transaction.objects.create(
+            bank_id_sender=sender_account,
+            bank_id_recipient=recipient_account,
             sum_count=amount,
             transfer_type=transfer_type,
             comment=comment
@@ -50,15 +50,15 @@ class TransactionHandler:
         to_account.balance += amount
         to_account.save()
 
-        transaction = Transaction.objects.create(
-            from_id=MAIN_BANK_ACCOUNT,
-            to_id=to_account_id,
-            comment=comment,
-            sum_count=amount,
-            transfer_type="achievement"
-        )
+        # transaction = Transaction.objects.create(
+        #     from_id=MAIN_BANK_ACCOUNT,
+        #     to_id=to_account_id,
+        #     comment=comment,
+        #     sum_count=amount,
+        #     transfer_type="achievement"
+        # )
 
-        return transaction.id
+        # return transaction.id
 
     @staticmethod
     @transaction.atomic()
@@ -68,15 +68,27 @@ class TransactionHandler:
         to_account.balance -= amount
         to_account.save()
 
-        transaction = Transaction.objects.create(
-            from_id=MAIN_BANK_ACCOUNT,
-            to_id=to_account_id,
-            comment=comment,
-            sum_count=amount,
-            transfer_type="buy"
-        )
+        # transaction = Transaction.objects.create(
+        #     from_id=MAIN_BANK_ACCOUNT,
+        #     to_id=to_account_id,
+        #     comment=comment,
+        #     sum_count=amount,
+        #     transfer_type="buy"
+        # )
+        #
+        # return transaction.id
 
-        return transaction.id
+    @staticmethod
+    def transaction_response(t_qs):
+        return [{
+            'id': t.id,
+            'sum_count': t.sum_count,
+            'transfer_type': t.transfer_type,
+            'comment': t.comment,
+            'from_id': Student.objects.get(bank_account_id=t.from_id.id).id,
+            'to_id': Student.objects.get(bank_account_id=t.to_id.id).id,
+            'date_time': t.date_time
+        } for t in t_qs]
 
     @staticmethod
     def get_all_transfers_from_student(student_id):
@@ -86,15 +98,11 @@ class TransactionHandler:
                 Q(from_id=student_bank_account_id) | Q(to_id=student_bank_account_id)
             )
 
-            transactions = [{
-                'id': t.id,
-                'sum_count': t.sum_count,
-                'transfer_type': t.transfer_type,
-                'comment': t.comment,
-                'from_id': Student.objects.get(bank_account_id=t.from_id.id).id,
-                'to_id': Student.objects.get(bank_account_id=t.to_id.id).id,
-                'date_time': t.date_time
-            } for t in transaction_qs]
-            return transactions, status.HTTP_200_OK
+            return TransactionHandler.transaction_response(transaction_qs), status.HTTP_200_OK
         except Student.DoesNotExist:
             return {'detail': 'Пользователь не найден'}, status.HTTP_400_BAD_REQUEST
+
+    @staticmethod
+    def get_all_transfers(transfer_type):
+        transaction_qs = Transaction.objects.filter(transfer_type=transfer_type)
+        return TransactionHandler.transaction_response(transaction_qs), status.HTTP_200_OK
