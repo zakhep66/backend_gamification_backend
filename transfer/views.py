@@ -44,7 +44,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
             *TransactionHandler.get_all_transfers(request.data.get('transfer_type'))
         )
 
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated, ])
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated, ])
     def all_student_transfer(self, request):
         return Response(
             *TransactionHandler.get_all_transfers_from_student(
