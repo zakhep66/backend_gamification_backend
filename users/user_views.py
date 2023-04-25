@@ -62,19 +62,6 @@ class StudentViewSet(viewsets.ModelViewSet):
         serializer = StudentSerializer(instance)
         return Response(serializer.data)
 
-    @transaction.atomic()
-    def create(self, request, *args, **kwargs):
-        bank_account = BankAccount.objects.create(
-            balance=int(os.environ.get("START_STUDENT_BALANCE"))
-        )
-
-        student_data = request.data
-        serializer = self.get_serializer(data=student_data)
-        serializer.is_valid()
-        Student.objects.create(bank_account_id=bank_account, **student_data)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
 
 class ShortStudentInfoViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()

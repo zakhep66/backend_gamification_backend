@@ -1,3 +1,5 @@
+import os
+
 from rest_framework import serializers, status
 from rest_framework.response import Response
 
@@ -27,8 +29,13 @@ class ShortStudentInfoSerializer(serializers.ModelSerializer, GetStudentInfo):
 
 
 class StudentSerializer(BaseUserSerializer, GetStudentInfo):
-    balance = serializers.SerializerMethodField(read_only=True)
-    direction = DirectionSerializer(many=True, read_only=True)
+    balance = serializers.SerializerMethodField()
+    direction = DirectionSerializer(many=True, required=False)
+
+    def create(self, validated_data):
+        bank_account_id = BankAccount.objects.create(balance=int(os.environ.get('START_STUDENT_BALANCE')))
+        student = Student.objects.create(bank_account_id=bank_account_id, **validated_data)
+        return student
 
     class Meta:
         model = Student
