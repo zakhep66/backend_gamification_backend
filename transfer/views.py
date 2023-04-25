@@ -37,3 +37,11 @@ class TransactionViewSet(viewsets.ModelViewSet):
                 comment=request.data.get('comment')
             )
         )
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated, ])
+    def all_student_transfer(self, request):
+        return Response(
+            *TransactionHandler.get_all_transfers_from_student(
+                student_id=request.data.get('student_id')
+            )
+        )

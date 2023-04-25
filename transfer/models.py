@@ -1,7 +1,6 @@
 from django.db import models
 
 from users.models import BankAccount
-# from .tasks import process_transaction
 
 
 class Transaction(models.Model):

@@ -160,23 +160,6 @@ class ProfileView(APIView):
 
         try:
             student = Student.objects.get(id=user_id)
-            # обновление профиля студента
-
-            # получаем объект банковского счета, связанного со студентом
-            bank_account = student.bank_account_id
-
-            # получаем новое значение баланса из запроса
-            if new_balance := request.data.get('balance'):
-
-                # проверяем, что новое значение баланса является числом
-                if not isinstance(new_balance, int):
-                    return Response({'error': 'Неверный формат баланса.'}, status=400)
-
-                # изменяем баланс банковского счета и сохраняем изменения
-                bank_account.balance = new_balance
-                bank_account.save()
-
-            # возвращаем обновленные данные профиля студента
 
             serializer = StudentUpdateSerializer(instance=student, data=request.data, partial=True)
             if serializer.is_valid():
