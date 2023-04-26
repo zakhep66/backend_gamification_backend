@@ -1,4 +1,5 @@
 from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
@@ -21,6 +22,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+    def save(self, *args, **kwargs):
+        if self.pk is not None:  # проверяем, что объект уже сохранен в базе данных
+            original = type(self).objects.get(pk=self.pk)  # загружаем объект из базы данных
+            if original.password != self.password:  # проверяем, изменялся ли пароль
+                self.password = make_password(self.password)
+        else:
+            self.password = make_password(self.password)  # хешируем пароль при создании записи
+        super().save(*args, **kwargs)
 
 
 class AbstractUserModel(models.Model):
