@@ -1,5 +1,6 @@
 import os
 
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers, status
 from rest_framework.response import Response
 
@@ -34,7 +35,8 @@ class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 
     def create(self, validated_data):
         bank_account_id = BankAccount.objects.create(balance=int(os.environ.get('START_STUDENT_BALANCE')))
-        student = Student.objects.create(bank_account_id=bank_account_id, **validated_data)
+        hashed_password = make_password(validated_data.pop('password'))
+        student = Student.objects.create(bank_account_id=bank_account_id, **validated_data, password=hashed_password)
         return student
 
     class Meta:
