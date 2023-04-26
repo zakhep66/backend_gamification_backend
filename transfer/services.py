@@ -104,7 +104,7 @@ class TransactionHandler:
             student_bank_account_id = Student.objects.get(id=student_id).bank_account_id
             transaction_qs = Transaction.objects.filter(
                 Q(bank_id_sender=student_bank_account_id) | Q(bank_id_recipient=student_bank_account_id)
-            ).select_related('bank_id_sender__student', 'bank_id_recipient__student')
+            ).select_related('bank_id_sender__student', 'bank_id_recipient__student').order_by('-date_time')
 
             return TransactionHandler.transaction_response(transaction_qs), status.HTTP_200_OK
         except Student.DoesNotExist:
@@ -112,5 +112,5 @@ class TransactionHandler:
 
     @staticmethod
     def get_all_transfers(transfer_type):
-        transaction_qs = Transaction.objects.filter(transfer_type=transfer_type)
+        transaction_qs = Transaction.objects.filter(transfer_type=transfer_type).order_by('-date_time')
         return TransactionHandler.transaction_response(transaction_qs), status.HTTP_200_OK
