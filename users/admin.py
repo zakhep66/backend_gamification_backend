@@ -6,7 +6,7 @@ class StudentAdmin(admin.ModelAdmin):
     """Конфигурация модели студента в админке"""
 
     def save_model(self, request, obj, form, change):
-        if not change or form.cleaned_data['password']:
+        if not change or not obj.password or obj.password is not None and not obj.has_usable_password():
             obj.set_password(form.cleaned_data['password'])
         obj.save()
 
@@ -15,7 +15,7 @@ class EmployeeAdmin(admin.ModelAdmin):
     """Конфигурация модели сотрудника в админке"""
 
     def save_model(self, request, obj, form, change):
-        if not change or form.cleaned_data['password']:
+        if not change or not obj.password or obj.password is not None and not obj.has_usable_password():
             obj.set_password(form.cleaned_data['password'])
         obj.save()
 
