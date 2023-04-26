@@ -148,6 +148,9 @@ class ProfileView(APIView):
         try:
             student = Student.objects.get(id=user_id)
 
+            if 'password' in request.data:
+                request.data.pop('password')
+
             serializer = StudentUpdateSerializer(instance=student, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
