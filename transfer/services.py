@@ -85,8 +85,16 @@ class TransactionHandler:
             'sum_count': t.sum_count,
             'transfer_type': t.transfer_type,
             'comment': t.comment,
-            'from_id': Student.objects.get(bank_account_id=t.bank_id_sender.id).id,
-            'to_id': Student.objects.get(bank_account_id=t.bank_id_recipient.id).id,
+            'sender': {
+                'id': t.bank_id_sender.student.id,
+                'first_name': t.bank_id_sender.student.first_name,
+                'last_name': t.bank_id_sender.student.last_name,
+            },
+            'recipient': {
+                'id': t.bank_id_recipient.student.id,
+                'first_name': t.bank_id_recipient.student.first_name,
+                'last_name': t.bank_id_recipient.student.last_name,
+            },
             'date_time': t.date_time
         } for t in t_qs]
 
@@ -95,8 +103,8 @@ class TransactionHandler:
         try:
             student_bank_account_id = Student.objects.get(id=student_id).bank_account_id
             transaction_qs = Transaction.objects.filter(
-                Q(from_id=student_bank_account_id) | Q(to_id=student_bank_account_id)
-            )
+                Q(bank_id_sender=student_bank_account_id) | Q(bank_id_recipient=student_bank_account_id)
+            ).select_related('bank_id_sender__student', 'bank_id_recipient__student')
 
             return TransactionHandler.transaction_response(transaction_qs), status.HTTP_200_OK
         except Student.DoesNotExist:

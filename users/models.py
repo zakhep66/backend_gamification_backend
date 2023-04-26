@@ -65,7 +65,7 @@ class Student(CustomUser, AbstractUserModel):
     about = models.TextField(blank=True, null=True)
     portfolio_link = models.URLField(blank=True, null=True)
     in_lite = models.BooleanField(blank=False, null=False)
-    bank_account_id = models.OneToOneField('BankAccount', on_delete=models.CASCADE, related_name='Банковский_аккаунт')
+    bank_account_id = models.OneToOneField('BankAccount', on_delete=models.CASCADE, related_name='student')
     status = models.CharField(max_length=50, choices=STUDENT_STATUS, blank=False, null=False, default='active')
     direction = models.ManyToManyField('Direction', related_name='direction', null=True, blank=True)
 

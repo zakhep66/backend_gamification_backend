@@ -10,8 +10,8 @@ class Transaction(models.Model):
 		('achievement', 'ачивка')
 	)
 
-	bank_id_sender = models.ForeignKey(BankAccount, on_delete=models.DO_NOTHING, related_name='отправитель')
-	bank_id_recipient = models.ForeignKey(BankAccount, on_delete=models.DO_NOTHING, related_name='получатель')
+	bank_id_sender = models.ForeignKey(BankAccount, on_delete=models.DO_NOTHING, related_name='sender')
+	bank_id_recipient = models.ForeignKey(BankAccount, on_delete=models.DO_NOTHING, related_name='recipient')
 	comment = models.CharField(max_length=100)
 	sum_count = models.PositiveIntegerField()
 	date_time = models.DateTimeField(auto_now_add=True)
