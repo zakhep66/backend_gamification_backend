@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from market.models import StoreHistory, StoreProduct
+
+admin.site.register(StoreHistory)
+admin.site.register(StoreProduct)

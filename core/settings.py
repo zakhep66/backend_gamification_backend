@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'users',
     'transfer',
+    'market',
 
     'rest_framework',
     'rest_framework_simplejwt',
