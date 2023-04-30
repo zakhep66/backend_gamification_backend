@@ -1,6 +1,8 @@
 from rest_framework import status
+from rest_framework.response import Response
 
-from market.models import StoreHistory
+from market.models import StoreHistory, StoreProduct
+from transfer.services import TransactionHandler
 
 
 class MarketHandler:
@@ -18,3 +20,7 @@ class MarketHandler:
             'content': sb.content,
             'status': sb.status
         } for sb in student_buy], status.HTTP_200_OK
+
+    @staticmethod
+    def make_shop(product_id: int, student_id: int):
+        return TransactionHandler.market_transaction(product_id=product_id, sender_id=student_id)

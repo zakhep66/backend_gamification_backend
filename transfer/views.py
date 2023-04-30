@@ -13,27 +13,27 @@ from .services import TransactionHandler
 # from .tasks import process_transaction
 
 
-class TransactionViewSet(viewsets.ModelViewSet):
+class TransactionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
     authentication_classes = [CustomAuthentication, ]
+    permission_classes = [IsAuthenticated, ]
 
-    def get_permissions(self):
-        """
-        Определяем права доступа к методам.
-        """
-
-        permission_classes = [IsAuthenticated, ] if self.action in ['list', 'retrieve'] else self.permission_classes
-        return [permission() for permission in permission_classes]
+    # def get_permissions(self):
+    #     """
+    #     Определяем права доступа к методам.
+    #     """
+    #
+    #     permission_classes = [IsAuthenticated, ] if self.action in ['list', 'retrieve'] else self.permission_classes
+    #     return [permission() for permission in permission_classes]
 
     @action(detail=False, methods=['post'], permission_classes=[IsStudent, ])
     def transfer(self, request):
         return Response(
-            *TransactionHandler.make_transaction(
+            *TransactionHandler.transfer_student_to_student(
                 sender_id=request.user.id,
-                recipient_id=request.data.get('to_id'),
+                recipient_id=request.data.get('recipient_id'),
                 amount=request.data.get('sum_count'),
-                transfer_type=request.data.get('transfer_type'),
                 comment=request.data.get('comment')
             )
         )

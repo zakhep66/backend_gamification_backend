@@ -28,7 +28,7 @@ class DirectionViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 
-class BankAccountViewSet(viewsets.ModelViewSet):
+class BankAccountViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = BankAccount.objects.all()
     serializer_class = BankAccountSerializer
     permission_classes = [IsAuthenticated, ]

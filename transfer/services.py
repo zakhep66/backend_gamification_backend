@@ -1,8 +1,11 @@
+import os
+
 from django.db import transaction
 from django.db.models import Q
 from rest_framework import status
 from rest_framework.response import Response
 
+from market.models import StoreProduct, StoreHistory
 from users.models import Student, BankAccount
 from .models import Transaction
 
@@ -10,7 +13,12 @@ from .models import Transaction
 class TransactionHandler:
     @staticmethod
     @transaction.atomic()
-    def make_transaction(sender_id: int, recipient_id: int, amount: int, transfer_type: str, comment: str = ''):
+    def transfer_student_to_student(
+            sender_id: int,
+            recipient_id: int,
+            amount: int,
+            comment: str = '') -> tuple:
+        transfer_type = 'transfer'
         try:
             sender_account = Student.objects.get(id=sender_id).bank_account_id
             recipient_account = Student.objects.get(id=recipient_id).bank_account_id
@@ -43,43 +51,51 @@ class TransactionHandler:
         return {'detail': 'Транзакция успешно создана'}, status.HTTP_201_CREATED
 
     @staticmethod
-    @transaction.atomic()
-    def achievement_transaction(to_account_id, amount, comment, MAIN_BANK_ACCOUNT=1):
-        to_account = BankAccount.objects.select_for_update().get(id=to_account_id)
-
-        to_account.balance += amount
-        to_account.save()
-
-        # transaction = Transaction.objects.create(
-        #     from_id=MAIN_BANK_ACCOUNT,
-        #     to_id=to_account_id,
-        #     comment=comment,
-        #     sum_count=amount,
-        #     transfer_type="achievement"
-        # )
-
-        # return transaction.id
+    def achievement_transaction():
+        ...
 
     @staticmethod
     @transaction.atomic()
-    def market_transaction(to_account_id, amount, comment, MAIN_BANK_ACCOUNT=1):
-        to_account = BankAccount.objects.select_for_update().get(id=to_account_id)
+    def market_transaction(sender_id: int, product_id) -> tuple:
+        transfer_type = 'buy'
+        try:
+            product = StoreProduct.objects.get(id=product_id)
+        except StoreProduct.DoesNotExist:
+            return {'detail': 'Товар не найден'}, status.HTTP_400_BAD_REQUEST
+        try:
+            sender_account = Student.objects.get(id=sender_id).bank_account_id
+            main_bank_account = BankAccount.objects.get(id=int(os.environ.get('MAIN_BANK_ACCOUNT_ID')))
+        except Student.DoesNotExist:
+            return {'detail': 'Пользователь не найден'}, status.HTTP_400_BAD_REQUEST
+        except BankAccount.DoesNotExist:
+            return {'detail': 'Не найден главный банковский аккаунт'}, status.HTTP_400_BAD_REQUEST
 
-        to_account.balance -= amount
-        to_account.save()
+        if not sender_account.is_active:
+            return {'detail': 'Ваш счёт заблокирован'}, status.HTTP_400_BAD_REQUEST
+        elif sender_account.balance < product.price:
+            return {'detail': 'Недостаточно средств на счёте'}, status.HTTP_400_BAD_REQUEST
 
-        # transaction = Transaction.objects.create(
-        #     from_id=MAIN_BANK_ACCOUNT,
-        #     to_id=to_account_id,
-        #     comment=comment,
-        #     sum_count=amount,
-        #     transfer_type="buy"
-        # )
-        #
-        # return transaction.id
+        sender_account.balance -= product.price
+        main_bank_account.balance += product.price
+        sender_account.save()
+        main_bank_account.save()
+
+        Transaction.objects.create(
+            bank_id_sender=sender_account,
+            bank_id_recipient=main_bank_account,
+            sum_count=product.price,
+            transfer_type=transfer_type,
+            comment=f'Покупка товара: {product.name}'
+        )
+
+        StoreHistory.objects.create(
+            store_product_id=product,
+            buyer_bank_account_id=sender_account
+        )
+        return {'detail': 'Покупка прошла успешно'}, status.HTTP_201_CREATED
 
     @staticmethod
-    def transaction_response(t_qs):
+    def _transaction_response(t_qs):
         return [{
             'id': t.id,
             'sum_count': t.sum_count,
@@ -106,11 +122,17 @@ class TransactionHandler:
                 Q(bank_id_sender=student_bank_account_id) | Q(bank_id_recipient=student_bank_account_id)
             ).select_related('bank_id_sender__student', 'bank_id_recipient__student').order_by('-date_time')
 
-            return TransactionHandler.transaction_response(transaction_qs), status.HTTP_200_OK
+            return TransactionHandler._transaction_response(transaction_qs), status.HTTP_200_OK
         except Student.DoesNotExist:
             return {'detail': 'Пользователь не найден'}, status.HTTP_400_BAD_REQUEST
 
     @staticmethod
     def get_all_transfers(transfer_type):
-        transaction_qs = Transaction.objects.filter(transfer_type=transfer_type).order_by('-date_time')
-        return TransactionHandler.transaction_response(transaction_qs), status.HTTP_200_OK
+        transaction_qs = Transaction.objects.prefetch_related(
+            'bank_id_sender__student', 'bank_id_recipient__student'
+        ).filter(transfer_type=transfer_type).order_by('-date_time')
+
+        if transaction_qs.exists():
+            return TransactionHandler._transaction_response(transaction_qs), status.HTTP_200_OK
+        else:
+            return {'error': f"Не найден тип транзакции: '{transfer_type}'"}, status.HTTP_404_NOT_FOUND

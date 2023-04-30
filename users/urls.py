@@ -8,6 +8,7 @@ router.register(r'student', StudentViewSet, basename='student')
 router.register(r'short_student', ShortStudentInfoViewSet, basename='short_student')
 router.register(r'employee', EmployeeViewSet, basename='employee')
 router.register(r'direction', DirectionViewSet, basename='direction')
+router.register(r'bank', BankAccountViewSet, basename='bank')
 all_money_in_app = BankAccountViewSet.as_view({'get': 'all_money_in_app'})
 
 urlpatterns = [

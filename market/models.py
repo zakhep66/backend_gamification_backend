@@ -13,8 +13,8 @@ class StoreHistory(models.Model):
     status = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name = 'Покупка'
-        verbose_name_plural = 'Покупки'
+        verbose_name = 'История покупки'
+        verbose_name_plural = 'История покупок'
 
     def __str__(self):
         return self.store_product_id.product_type
@@ -28,8 +28,8 @@ class StoreProduct(models.Model):
     product_type = models.CharField(max_length=50)
 
     class Meta:
-        verbose_name = 'История покупок'
-        verbose_name_plural = 'Истории покупок'
+        verbose_name = 'Товар'
+        verbose_name_plural = 'Товары'
 
     def __str__(self):
         return self.name
