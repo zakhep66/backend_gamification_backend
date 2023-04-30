@@ -10,7 +10,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 
 from .models import Student, Employee, BankAccount
-from .permissions import IsEmployee
+from .permissions import IsEmployeeManager, MakeCreateStudentsUpdates
 from .serializers import StudentSerializer, EmployeeSerializer, BankAccountSerializer, \
     ShortStudentInfoSerializer, StudentUpdateSerializer
 
@@ -47,7 +47,7 @@ class StudentViewSet(viewsets.ModelViewSet):
         if self.action in ['list', 'retrieve']:
             permission_classes = [IsAuthenticated, ]
         elif self.action in ['create', 'partial_update', 'update']:
-            permission_classes = [IsEmployee, ]
+            permission_classes = [MakeCreateStudentsUpdates, ]
         else:
             permission_classes = self.permission_classes
         return [permission() for permission in permission_classes]
@@ -63,7 +63,7 @@ class StudentViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class ShortStudentInfoViewSet(viewsets.ModelViewSet):
+class ShortStudentInfoViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Student.objects.all()
     serializer_class = ShortStudentInfoSerializer
     permission_classes = [IsAuthenticated, ]
@@ -86,8 +86,19 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     """
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsEmployeeManager, ]
     authentication_classes = [CustomAuthentication, ]
+
+    def get_permissions(self):
+        """
+        Определяем права доступа к методам.
+        """
+
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [IsAuthenticated, ]
+        else:
+            permission_classes = self.permission_classes
+        return [permission() for permission in permission_classes]
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()

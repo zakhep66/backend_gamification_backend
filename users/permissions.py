@@ -16,3 +16,27 @@ class IsEmployee(permissions.BasePermission):
             except ObjectDoesNotExist:
                 return False
         return False
+
+
+class IsEmployeeManager(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_authenticated:
+            try:
+                employee = request.user.employee
+                if employee.user_role == 'manager':
+                    return True
+            except ObjectDoesNotExist:
+                pass
+        return False
+
+
+class MakeCreateStudentsUpdates(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_authenticated:
+            try:
+                employee = request.user.employee
+                if employee.user_role in ['manager', 'couch']:
+                    return True
+            except ObjectDoesNotExist:
+                pass
+            return False
