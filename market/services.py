@@ -15,7 +15,13 @@ class MarketHandler:
         )
         return [{
             'id': sb.id,
-            'store_product': sb.store_product_id.name,
+            'store_product': {
+                'id': sb.store_product_id.id,
+                'name': sb.store_product_id.name,
+                'description': sb.store_product_id.description,
+                'image': sb.store_product_id.image.url,
+                'product_type': sb.store_product_id.product_type
+            },
             'date_time': sb.date_time,
             'content': sb.content,
             'status': sb.status
