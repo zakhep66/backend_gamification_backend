@@ -10,7 +10,7 @@ from transfer.permissions import IsStudent
 from users.user_views import CustomAuthentication
 
 
-class StoreProductViewSet(viewsets.ModelViewSet):
+class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = StoreProduct.objects.all()
     serializer_class = StoreProductSerializer
     authentication_classes = [CustomAuthentication, ]
@@ -22,6 +22,16 @@ class StoreProductViewSet(viewsets.ModelViewSet):
 
         permission_classes = [IsAuthenticated, ] if self.action in ['list', ] else self.permission_classes
         return [permission() for permission in permission_classes]
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.serializer_class(instance)
+        return Response(serializer.data)
 
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated, ])
     def all_student_product(self, request):
