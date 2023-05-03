@@ -9,10 +9,10 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 
-from .models import Student, Employee, BankAccount
+from .models import Student, Employee, BankAccount, StudentProfile
 from .permissions import IsEmployeeManager, MakeCreateStudentsUpdates
 from .serializers import StudentSerializer, EmployeeSerializer, BankAccountSerializer, \
-    ShortStudentInfoSerializer, StudentUpdateSerializer
+    ShortStudentInfoSerializer, StudentUpdateSerializer, StudentProfileSerializer
 
 
 class CustomAuthentication(BaseAuthentication):
@@ -130,8 +130,8 @@ class ProfileView(APIView):
         try:
             student = Student.objects.get(id=user_id)
             # профиль студента
-
-            serializer = StudentSerializer(student)
+            student_profile = StudentProfile.objects.get(student_id=student.id)
+            serializer = StudentProfileSerializer(student_profile)
             return Response(serializer.data)
 
         except Student.DoesNotExist:
