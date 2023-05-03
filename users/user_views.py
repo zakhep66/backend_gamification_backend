@@ -3,7 +3,7 @@ import os
 from django.db import transaction
 from rest_framework import viewsets, status
 from rest_framework.authentication import BaseAuthentication
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser, OR
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -86,7 +86,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     """
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
-    permission_classes = [IsEmployeeManager, ]
+    permission_classes = [IsAdminUser | IsEmployeeManager, ]
     authentication_classes = [CustomAuthentication, ]
 
     def get_permissions(self):

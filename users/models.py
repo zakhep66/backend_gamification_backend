@@ -23,15 +23,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-    def save(self, *args, **kwargs):
-        if self.pk is not None:  # проверяем, что объект уже сохранен в базе данных
-            original = type(self).objects.get(pk=self.pk)  # загружаем объект из базы данных
-            if original.password != self.password:  # проверяем, изменялся ли пароль
-                self.password = make_password(self.password)
-        else:
-            self.password = make_password(self.password)  # хешируем пароль при создании записи
-        super().save(*args, **kwargs)
-
 
 class AbstractUserModel(models.Model):
     USER_ROLE = (
@@ -78,6 +69,7 @@ class Student(CustomUser, AbstractUserModel):
     bank_account_id = models.OneToOneField('BankAccount', on_delete=models.CASCADE, related_name='student')
     status = models.CharField(max_length=50, choices=STUDENT_STATUS, blank=False, null=False, default='active')
     direction = models.ManyToManyField('Direction', related_name='direction', null=True, blank=True)
+    student_profile = models.OneToOneField('StudentProfile', on_delete=models.CASCADE)
 
     objects = StudentManager()
 
@@ -87,7 +79,7 @@ class Student(CustomUser, AbstractUserModel):
 
 
 class StudentProfile(models.Model):
-    student_id = models.OneToOneField('Student', on_delete=models.CASCADE, related_name='student_profile', null=False, blank=False)
+    # student_id = models.OneToOneField('Student', on_delete=models.CASCADE, related_name='student_profile', null=False, blank=False)
     back_color = models.CharField(max_length=20, blank=True, null=True)
     border_color = models.CharField(max_length=20, blank=True, null=True)
     emoji_status = models.CharField(max_length=200, blank=True, null=True)

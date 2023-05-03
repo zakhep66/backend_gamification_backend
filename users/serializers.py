@@ -24,9 +24,19 @@ class ShortStudentInfoSerializer(serializers.ModelSerializer, GetStudentInfo):
 	balance = serializers.SerializerMethodField()
 	direction = DirectionSerializer(many=True)
 
+	def get_student_profile(self, obj):
+		student_profile = obj.student_profile
+		return {
+			'back_color': student_profile.back_color,
+			'border_color': student_profile.border_color,
+			'emoji_status': student_profile.emoji_status
+		}
+
+	student_profile = serializers.SerializerMethodField()
+
 	class Meta:
 		model = Student
-		fields = ['id', 'first_name', 'last_name', 'balance', 'image', 'direction']
+		fields = ['id', 'first_name', 'last_name', 'balance', 'image', 'direction', 'student_profile']
 
 
 class StudentSerializer(BaseUserSerializer, GetStudentInfo):
@@ -36,9 +46,16 @@ class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 	def create(self, validated_data):
 		bank_account_id = BankAccount.objects.create(balance=int(os.environ.get('START_STUDENT_BALANCE')))
 		hashed_password = make_password(validated_data.pop('password'))
-		student = Student.objects.create(bank_account_id=bank_account_id, **validated_data, password=hashed_password)
-		StudentProfile.objects.create(student_id=student)
+		student_profile = StudentProfile.objects.create()
+		student = Student.objects.create(
+			bank_account_id=bank_account_id, student_profile=student_profile, **validated_data, password=hashed_password
+		)
 		return student
+
+	def update(self, instance, validated_data):
+		if 'password' in validated_data:
+			validated_data['password'] = make_password(validated_data['password'])
+		return super().update(instance, validated_data)
 
 	class Meta:
 		model = Student
@@ -65,6 +82,15 @@ class StudentUpdateSerializer(BaseUserSerializer, GetStudentInfo):
 
 class EmployeeSerializer(BaseUserSerializer, GetEmployeeInfo):
 	direction = serializers.SerializerMethodField()
+
+	def create(self, validated_data):
+		validated_data['password'] = make_password(validated_data['password'])
+		return super().create(validated_data)
+
+	def update(self, instance, validated_data):
+		if 'password' in validated_data:
+			validated_data['password'] = make_password(validated_data['password'])
+		return super().update(instance, validated_data)
 
 	class Meta:
 		model = Employee
