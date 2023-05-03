@@ -79,7 +79,6 @@ class Student(CustomUser, AbstractUserModel):
 
 
 class StudentProfile(models.Model):
-    # student_id = models.OneToOneField('Student', on_delete=models.CASCADE, related_name='student_profile', null=False, blank=False)
     back_color = models.CharField(max_length=20, blank=True, null=True)
     border_color = models.CharField(max_length=20, blank=True, null=True)
     emoji_status = models.CharField(max_length=200, blank=True, null=True)
@@ -90,7 +89,7 @@ class StudentProfile(models.Model):
         verbose_name_plural = 'Профили'
 
     def __str__(self):
-        return f'Профиль студента {self.student_id.first_name} {self.student_id.last_name}'
+        return f'Профиль студента {self.student.first_name} {self.student.last_name}'
 
 
 class BankAccount(models.Model):
