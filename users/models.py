@@ -89,7 +89,7 @@ class StudentProfile(models.Model):
         verbose_name_plural = 'Профили'
 
     def __str__(self):
-        return f'Профиль студента {self.student.first_name} {self.student.last_name}'
+        return f'Профиль студента'
 
 
 class BankAccount(models.Model):

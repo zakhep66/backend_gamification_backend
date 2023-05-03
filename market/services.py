@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from market.models import StoreHistory, StoreProduct
+from market.serializers import StoreHistorySerializer
 from transfer.services import TransactionHandler
 
 
@@ -29,12 +30,19 @@ class MarketHandler:
 
     @staticmethod
     def make_shop(product_id: int, student_id: int):
+        """
+        Покупка товара в магазине
+        """
         return TransactionHandler.market_transaction(product_id=product_id, sender_id=student_id)
 
     @staticmethod
     def get_all_non_issued_items():
+        """
+        Возвращает json данные
+        """
         data_qs = StoreHistory.objects.select_related('store_product_id').filter(
             status=False, store_product_id__product_type='merch'
         )
-        return data_qs, status.HTTP_200_OK
+        serialized_data = StoreHistorySerializer(data_qs, many=True).data
+        return serialized_data, status.HTTP_200_OK
 
