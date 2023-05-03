@@ -10,7 +10,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 
 from .models import Student, Employee, BankAccount, StudentProfile
-from .permissions import IsEmployeeManager, MakeCreateStudentsUpdates
+from .permissions import IsEmployeeManager, IsEmployeeManagerOrCouch
 from .serializers import StudentSerializer, EmployeeSerializer, BankAccountSerializer, \
     ShortStudentInfoSerializer, StudentUpdateSerializer, StudentProfileSerializer
 
@@ -47,7 +47,7 @@ class StudentViewSet(viewsets.ModelViewSet):
         if self.action in ['list', 'retrieve']:
             permission_classes = [IsAuthenticated, ]
         elif self.action in ['create', 'partial_update', 'update']:
-            permission_classes = [MakeCreateStudentsUpdates, ]
+            permission_classes = [IsEmployeeManagerOrCouch, ]
         else:
             permission_classes = self.permission_classes
         return [permission() for permission in permission_classes]

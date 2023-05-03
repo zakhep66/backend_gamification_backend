@@ -30,7 +30,7 @@ class IsEmployeeManager(permissions.BasePermission):
         return False
 
 
-class MakeCreateStudentsUpdates(permissions.BasePermission):
+class IsEmployeeManagerOrCouch(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user.is_authenticated:
             try:

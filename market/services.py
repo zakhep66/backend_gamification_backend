@@ -30,3 +30,11 @@ class MarketHandler:
     @staticmethod
     def make_shop(product_id: int, student_id: int):
         return TransactionHandler.market_transaction(product_id=product_id, sender_id=student_id)
+
+    @staticmethod
+    def get_all_non_issued_items():
+        data_qs = StoreHistory.objects.select_related('store_product_id').filter(
+            status=False, store_product_id__product_type='merch'
+        )
+        return data_qs, status.HTTP_200_OK
+
