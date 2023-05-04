@@ -39,9 +39,18 @@ class ShortStudentInfoSerializer(serializers.ModelSerializer, GetStudentInfo):
 		fields = ['id', 'first_name', 'last_name', 'balance', 'image', 'direction', 'student_profile']
 
 
+class StudentProfileSerializer(
+	serializers.ModelSerializer
+):
+	class Meta:
+		model = StudentProfile
+		fields = '__all__'
+
+
 class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 	balance = serializers.SerializerMethodField()
 	direction = DirectionSerializer(many=True, required=False)
+	student_profile = StudentProfileSerializer()
 
 	def create(self, validated_data):
 		bank_account_id = BankAccount.objects.create(balance=int(os.environ.get('START_STUDENT_BALANCE')))
@@ -53,14 +62,37 @@ class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 		return student
 
 	def update(self, instance, validated_data):
+		# Обновление пароля, если он предоставлен
 		if 'password' in validated_data:
 			validated_data['password'] = make_password(validated_data['password'])
+
+		# Обновление связной модели student_profile, если она предоставлена
+		if 'student_profile' in validated_data:
+			student_profile_data = validated_data.pop('student_profile')
+			student_profile = instance.student_profile
+			for attr, value in student_profile_data.items():
+				setattr(student_profile, attr, value)
+			student_profile.save()
+
+		# Обновление основной модели Student
 		return super().update(instance, validated_data)
+
+	def to_internal_value(self, data):
+		student_profile_data = data.pop('student_profile', None)
+		validated_data = super().to_internal_value(data)
+
+		if student_profile_data:
+			student_profile_serializer = StudentProfileSerializer(data=student_profile_data)
+			student_profile_serializer.is_valid(raise_exception=True)
+			validated_data['student_profile'] = student_profile_serializer.validated_data
+
+		return validated_data
 
 	class Meta:
 		model = Student
 		fields = BaseUserSerializer.Meta.fields + [
-			'telegram', 'in_lite', 'status', 'portfolio_link', 'about', 'balance', 'image', 'direction'
+			'telegram', 'in_lite', 'status', 'portfolio_link', 'about', 'balance', 'image', 'direction',
+			'student_profile'
 		]
 		extra_kwargs = {
 			'image': {'required': False},
@@ -68,16 +100,33 @@ class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 			'portfolio_link': {'required': False},
 			'about': {'required': False},
 			'direction': {'required': False},
-			'balance': {'required': False}
+			'balance': {'required': False},
+			'student_profile': {'required': False},
 		}
 
 
-class StudentUpdateSerializer(BaseUserSerializer, GetStudentInfo):
-	class Meta:
-		model = Student
-		fields = BaseUserSerializer.Meta.fields + [
-			'telegram', 'in_lite', 'status', 'portfolio_link', 'about', 'image', 'direction'
-		]
+# class StudentUpdateSerializer(BaseUserSerializer, GetStudentInfo):
+# 	student_profile = StudentProfileSerializer()
+#
+# 	class Meta:
+# 		model = Student
+# 		fields = BaseUserSerializer.Meta.fields + [
+# 			'telegram', 'in_lite', 'status', 'portfolio_link', 'about', 'image', 'direction', 'student_profile'
+# 		]
+#
+# 	def update(self, instance, validated_data):
+# 		profile_data = validated_data.pop('student_profile')
+# 		student_profile = instance.student_profile
+#
+# 		# Обновление полей студента
+# 		# for field, value in validated_data.items():
+# 		# 	setattr(instance, field, value)
+# 		# instance.save()
+#
+# 		# Обновление полей связанной модели
+# 		for field, value in profile_data.items():
+# 			setattr(student_profile, field, value)
+# 		student_profile.save()
 
 
 class EmployeeSerializer(BaseUserSerializer, GetEmployeeInfo):
@@ -104,16 +153,3 @@ class EmployeeSerializer(BaseUserSerializer, GetEmployeeInfo):
 			'false_fact': {'required': False},
 			'direction': {'required': False}
 		}
-
-
-class StudentProfileSerializer(
-	serializers.ModelSerializer
-):
-	def get_student_id(self, obj):
-		student_id = obj.student_id
-		return StudentSerializer(student_id).data
-	student_id = serializers.SerializerMethodField()
-
-	class Meta:
-		model = StudentProfile
-		fields = '__all__'
