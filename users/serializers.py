@@ -50,7 +50,7 @@ class StudentProfileSerializer(
 class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 	balance = serializers.SerializerMethodField()
 	direction = DirectionSerializer(many=True, required=False)
-	student_profile = StudentProfileSerializer()
+	student_profile = StudentProfileSerializer(required=False)
 
 	def create(self, validated_data):
 		bank_account_id = BankAccount.objects.create(balance=int(os.environ.get('START_STUDENT_BALANCE')))
