@@ -70,6 +70,7 @@ class Student(CustomUser, AbstractUserModel):
     status = models.CharField(max_length=50, choices=STUDENT_STATUS, blank=False, null=False, default='active')
     direction = models.ManyToManyField('Direction', related_name='direction', null=True, blank=True)
     student_profile = models.OneToOneField('StudentProfile', on_delete=models.CASCADE)
+    achievement = models.ManyToManyField('Achievement', related_name='students', blank=True)
 
     objects = StudentManager()
 
