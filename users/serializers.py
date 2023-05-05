@@ -49,33 +49,49 @@ class StudentProfileSerializer(
 
 class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 	balance = serializers.SerializerMethodField()
-	direction = DirectionSerializer(many=True, required=False)
-	student_profile = StudentProfileSerializer(required=False)
+	direction = serializers.PrimaryKeyRelatedField(queryset=Direction.objects.all(), many=True, required=False)
+	student_profile = serializers.PrimaryKeyRelatedField(queryset=StudentProfile.objects.all(), required=False)
 
 	def create(self, validated_data):
 		bank_account_id = BankAccount.objects.create(balance=int(os.environ.get('START_STUDENT_BALANCE')))
 		hashed_password = make_password(validated_data.pop('password'))
-		student_profile = StudentProfile.objects.create()
+		student_profile_data = validated_data.pop('student_profile', None)
+
+		if student_profile_data:
+			student_profile = StudentProfile.objects.create(**student_profile_data)
+		else:
+			student_profile = StudentProfile.objects.create()
+
 		student = Student.objects.create(
 			bank_account_id=bank_account_id, student_profile=student_profile, **validated_data, password=hashed_password
 		)
+
 		return student
 
 	def update(self, instance, validated_data):
-		# Обновление пароля, если он предоставлен
 		if 'password' in validated_data:
 			validated_data['password'] = make_password(validated_data['password'])
 
-		# Обновление связной модели student_profile, если она предоставлена
-		if 'student_profile' in validated_data:
-			student_profile_data = validated_data.pop('student_profile')
+		# Извлекаем данные профиля студента из validated_data
+		student_profile_data = validated_data.pop('student_profile', None)
+
+		# Если есть данные профиля студента, обновляем связанный объект профиля студента
+		if student_profile_data:
 			student_profile = instance.student_profile
 			for attr, value in student_profile_data.items():
 				setattr(student_profile, attr, value)
 			student_profile.save()
 
-		# Обновление основной модели Student
-		return super().update(instance, validated_data)
+		# Если в данных есть направления, обрабатываем их отдельно
+		if 'direction' in validated_data:
+			directions = validated_data.pop('direction')
+			instance.direction.set(directions)
+
+		for attr, value in validated_data.items():
+			setattr(instance, attr, value)
+		instance.save()
+
+		return instance
 
 	def to_internal_value(self, data):
 		student_profile_data = data.pop('student_profile', None)
@@ -87,6 +103,11 @@ class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 			validated_data['student_profile'] = student_profile_serializer.validated_data
 
 		return validated_data
+
+	def to_representation(self, instance):
+		representation = super().to_representation(instance)
+		representation['student_profile'] = StudentProfileSerializer(instance.student_profile).data
+		return representation
 
 	class Meta:
 		model = Student
