@@ -2,7 +2,9 @@ from django.contrib import admin
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
+from import_export.admin import ImportExportModelAdmin
 
+from .admin_resources import EmployeeResource, StudentResource
 from .forms import CustomAdminPasswordChangeForm
 from .models import Student, Employee, Direction, BankAccount, StudentProfile
 
@@ -33,8 +35,9 @@ class CustomUserAdmin(UserAdmin):
 	password_placeholder.short_description = _("Password")
 
 
-class StudentAdmin(CustomUserAdmin):
+class StudentAdmin(CustomUserAdmin, ImportExportModelAdmin):
 	change_password_form = CustomAdminPasswordChangeForm
+	resource_classes = StudentResource
 
 	def save_model(self, request, obj, form, change):
 		if change and form.cleaned_data["password"]:
@@ -42,8 +45,9 @@ class StudentAdmin(CustomUserAdmin):
 		super().save_model(request, obj, form, change)
 
 
-class EmployeeAdmin(CustomUserAdmin):
+class EmployeeAdmin(CustomUserAdmin, ImportExportModelAdmin):
 	change_password_form = CustomAdminPasswordChangeForm
+	resource_class = EmployeeResource
 
 	def save_model(self, request, obj, form, change):
 		if change and form.cleaned_data["password"]:

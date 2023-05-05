@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'drf_yasg',
-
+    'import_export',
 ]
 
 MIDDLEWARE = [
