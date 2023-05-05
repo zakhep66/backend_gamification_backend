@@ -12,6 +12,8 @@ from .models import Transaction
 
 class TransactionHandler:
 	MAIN_BANK_ACCOUNT = int(os.environ.get('MAIN_BANK_ACCOUNT_ID'))
+	TumoAccount = 'Tumo account'
+	TumoComment = ''
 
 	@staticmethod
 	@transaction.atomic()
@@ -105,13 +107,13 @@ class TransactionHandler:
 			'comment': t.comment,
 			'sender': {
 				'id': t.bank_id_sender.student.id if t.bank_id_sender.student else TransactionHandler.MAIN_BANK_ACCOUNT,
-				'first_name': t.bank_id_sender.student.first_name if t.bank_id_sender.student else 'Tumo',
-				'last_name': t.bank_id_sender.student.last_name if t.bank_id_sender.student else '',
+				'first_name': t.bank_id_sender.student.first_name if t.bank_id_sender.student else TransactionHandler.TumoAccount,
+				'last_name': t.bank_id_sender.student.last_name if t.bank_id_sender.student else TransactionHandler.TumoComment,
 			},
 			'recipient': {
 				'id': t.bank_id_recipient.student.id if t.bank_id_recipient.student else TransactionHandler.MAIN_BANK_ACCOUNT,
-				'first_name': t.bank_id_recipient.student.first_name if t.bank_id_recipient.student else 'Tumo',
-				'last_name': t.bank_id_recipient.student.last_name if t.bank_id_recipient.student else '',
+				'first_name': t.bank_id_recipient.student.first_name if t.bank_id_recipient.student else TransactionHandler.TumoAccount,
+				'last_name': t.bank_id_recipient.student.last_name if t.bank_id_recipient.student else TransactionHandler.TumoComment,
 			},
 			'date_time': t.date_time
 		} for t in t_qs]
