@@ -97,7 +97,7 @@ class BankAccount(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.id
+        return f'{self.id}'
 
     class Meta:
         verbose_name = 'Банковский аккаунт'
