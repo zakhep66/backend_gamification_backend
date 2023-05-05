@@ -50,21 +50,20 @@ class StudentProfileSerializer(
 class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 	balance = serializers.SerializerMethodField()
 	direction = serializers.PrimaryKeyRelatedField(queryset=Direction.objects.all(), many=True, required=False)
-	student_profile = serializers.PrimaryKeyRelatedField(queryset=StudentProfile.objects.all(), required=False)
+	student_profile = StudentProfileSerializer()
 
 	def create(self, validated_data):
+		direction_data = validated_data.pop('direction', [])
 		bank_account_id = BankAccount.objects.create(balance=int(os.environ.get('START_STUDENT_BALANCE')))
 		hashed_password = make_password(validated_data.pop('password'))
-		student_profile_data = validated_data.pop('student_profile', None)
-
-		if student_profile_data:
-			student_profile = StudentProfile.objects.create(**student_profile_data)
-		else:
-			student_profile = StudentProfile.objects.create()
+		student_profile = StudentProfile.objects.create(**validated_data.pop('student_profile'))
 
 		student = Student.objects.create(
 			bank_account_id=bank_account_id, student_profile=student_profile, **validated_data, password=hashed_password
 		)
+
+		directions = Direction.objects.filter(id__in=direction_data)
+		student.direction.set(directions)
 
 		return student
 
@@ -72,19 +71,17 @@ class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 		if 'password' in validated_data:
 			validated_data['password'] = make_password(validated_data['password'])
 
-		# Извлекаем данные профиля студента из validated_data
 		student_profile_data = validated_data.pop('student_profile', None)
 
-		# Если есть данные профиля студента, обновляем связанный объект профиля студента
 		if student_profile_data:
 			student_profile = instance.student_profile
 			for attr, value in student_profile_data.items():
 				setattr(student_profile, attr, value)
 			student_profile.save()
 
-		# Если в данных есть направления, обрабатываем их отдельно
 		if 'direction' in validated_data:
-			directions = validated_data.pop('direction')
+			direction_ids = validated_data.pop('direction')
+			directions = Direction.objects.filter(id__in=direction_ids)
 			instance.direction.set(directions)
 
 		for attr, value in validated_data.items():
@@ -94,6 +91,7 @@ class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 		return instance
 
 	def to_internal_value(self, data):
+		direction_data = data.pop('direction', [])
 		student_profile_data = data.pop('student_profile', None)
 		validated_data = super().to_internal_value(data)
 
@@ -102,11 +100,15 @@ class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 			student_profile_serializer.is_valid(raise_exception=True)
 			validated_data['student_profile'] = student_profile_serializer.validated_data
 
+		if direction_data:
+			validated_data['direction'] = direction_data
+
 		return validated_data
 
 	def to_representation(self, instance):
 		representation = super().to_representation(instance)
 		representation['student_profile'] = StudentProfileSerializer(instance.student_profile).data
+		representation['direction'] = DirectionSerializer(instance.direction.all(), many=True).data
 		return representation
 
 	class Meta:
