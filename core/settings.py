@@ -179,6 +179,7 @@ SIMPLE_JWT = {
 # redis related settings
 REDIS_HOST = "172.17.0.2"
 REDIS_PORT = "6379"
+
 CELERY_BROKER_URL = "redis://" + REDIS_HOST + ":" + REDIS_PORT + "/0"
 CELERY_BROKER_TRANSPORT_OPTIONS = {"visibility_timeout": 3600}
 CELERY_RESULT_BACKEND = "redis://" + REDIS_HOST + ":" + REDIS_PORT + "/0"
