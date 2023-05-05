@@ -104,14 +104,14 @@ class TransactionHandler:
 			'transfer_type': t.transfer_type,
 			'comment': t.comment,
 			'sender': {
-				'id': t.bank_id_sender.student.id if None else TransactionHandler.MAIN_BANK_ACCOUNT,
-				'first_name': t.bank_id_sender.student.first_name if None else 'Tumo',
-				'last_name': t.bank_id_sender.student.last_name if None else '',
+				'id': t.bank_id_sender.student.id if t.bank_id_sender.student else TransactionHandler.MAIN_BANK_ACCOUNT,
+				'first_name': t.bank_id_sender.student.first_name if t.bank_id_sender.student else 'Tumo',
+				'last_name': t.bank_id_sender.student.last_name if t.bank_id_sender.student else '',
 			},
 			'recipient': {
-				'id': t.bank_id_recipient.student.id if None else TransactionHandler.MAIN_BANK_ACCOUNT,
-				'first_name': t.bank_id_recipient.student.first_name if None else 'Tumo',
-				'last_name': t.bank_id_recipient.student.last_name if None else '',
+				'id': t.bank_id_recipient.student.id if t.bank_id_recipient.student else TransactionHandler.MAIN_BANK_ACCOUNT,
+				'first_name': t.bank_id_recipient.student.first_name if t.bank_id_recipient.student else 'Tumo',
+				'last_name': t.bank_id_recipient.student.last_name if t.bank_id_recipient.student else '',
 			},
 			'date_time': t.date_time
 		} for t in t_qs]
