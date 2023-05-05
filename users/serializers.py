@@ -50,13 +50,13 @@ class StudentProfileSerializer(
 class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 	balance = serializers.SerializerMethodField()
 	direction = serializers.PrimaryKeyRelatedField(queryset=Direction.objects.all(), many=True, required=False)
-	student_profile = StudentProfileSerializer()
+	student_profile = StudentProfileSerializer(required=False)
 
 	def create(self, validated_data):
 		direction_data = validated_data.pop('direction', [])
 		bank_account_id = BankAccount.objects.create(balance=int(os.environ.get('START_STUDENT_BALANCE')))
 		hashed_password = make_password(validated_data.pop('password'))
-		student_profile = StudentProfile.objects.create(**validated_data.pop('student_profile'))
+		student_profile = StudentProfile.objects.create()
 
 		student = Student.objects.create(
 			bank_account_id=bank_account_id,
