@@ -59,7 +59,10 @@ class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 		student_profile = StudentProfile.objects.create(**validated_data.pop('student_profile'))
 
 		student = Student.objects.create(
-			bank_account_id=bank_account_id, student_profile=student_profile, **validated_data, password=hashed_password
+			bank_account_id=bank_account_id,
+			student_profile=student_profile,
+			**validated_data,
+			password=hashed_password
 		)
 
 		directions = Direction.objects.filter(id__in=direction_data)

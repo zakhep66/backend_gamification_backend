@@ -63,7 +63,7 @@ class StoreHistoryViewSet(viewsets.ModelViewSet):
             *MarketHandler.make_shop(student_id=request.user.id, product_id=request.data.get('product_id'))
         )
 
-    @action(detail=False, methods=['get'], permisstion_classes=[IsAuthenticated, ])
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated, ])
     def all_non_issued_items(self, request):
         """
         Возвращает все не выданные товары типа merch
