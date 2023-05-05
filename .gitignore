@@ -4,8 +4,8 @@
 *.pyc
 __pycache__
 db.sqlite3
-media/icons/
-media/users/
+media/*
+**/migrations/*.py
 
 .idea
 
