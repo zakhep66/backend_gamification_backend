@@ -5,6 +5,7 @@ from market.models import StoreHistory, StoreProduct
 from market.serializers import StoreHistorySerializer
 from transfer.services import TransactionHandler
 from achievement.tasks import CeleryAchievementTasks
+from users.models import Student
 
 
 class MarketHandler:
@@ -34,12 +35,26 @@ class MarketHandler:
         """
         Покупка товара в магазине
         """
-        shop = TransactionHandler.market_transaction(product_id=product_id, sender_id=student_id)
+        # Получаем объекты студента и товара
+        try:
+            student = Student.objects.get(id=student_id)
+            product = StoreProduct.objects.get(id=product_id)
+        except Student.DoesNotExist:
+            return {'detail': 'Пользователь не найден'}, status.HTTP_400_BAD_REQUEST
+        except StoreProduct.DoesNotExist:
+            return {'detail': 'Товар не найден'}, status.HTTP_400_BAD_REQUEST
 
-        # ачивка за первую покупку
-        CeleryAchievementTasks.award_achievement_on_first_purchase.delay(student_id)
+        # Проверяем, купил ли студент этот товар ранее
+        if product.product_type != 'merch':
+            already_bought = StoreHistory.objects.filter(
+                store_product_id=product_id,
+                buyer_bank_account_id=student.bank_account_id
+            ).exists()
+            if already_bought:
+                return {'detail': 'Вы уже купили этот товар'}, status.HTTP_400_BAD_REQUEST
 
-        return shop
+        # Выполняем транзакцию на покупку товара
+        return TransactionHandler.market_transaction(product_id=product_id, sender_id=student_id)
 
     @staticmethod
     def get_all_non_issued_items():
@@ -52,3 +67,6 @@ class MarketHandler:
         serialized_data = StoreHistorySerializer(data_qs, many=True).data
         return serialized_data, status.HTTP_200_OK
 
+    @staticmethod
+    def get_opportunity_student_buy(student_id):
+        return StoreProduct.get_available_products_for_student(student_id=student_id)

@@ -11,7 +11,7 @@ from .models import Transaction
 
 
 class TransactionHandler:
-	MAIN_BANK_ACCOUNT = int(os.environ.get('MAIN_BANK_ACCOUNT_ID'))
+	MAIN_BANK_ACCOUNT_ID = int(os.environ.get('MAIN_BANK_ACCOUNT_ID'))
 	TumoAccount = 'Tumo account'
 	TumoComment = ''
 
@@ -68,7 +68,7 @@ class TransactionHandler:
 			return {'detail': 'Товар не найден'}, status.HTTP_400_BAD_REQUEST
 		try:
 			sender_account = Student.objects.get(id=sender_id).bank_account_id
-			main_bank_account = BankAccount.objects.get(id=TransactionHandler.MAIN_BANK_ACCOUNT)
+			main_bank_account = BankAccount.objects.get(id=TransactionHandler.MAIN_BANK_ACCOUNT_ID)
 		except Student.DoesNotExist:
 			return {'detail': 'Пользователь не найден'}, status.HTTP_400_BAD_REQUEST
 		except BankAccount.DoesNotExist:
@@ -106,31 +106,38 @@ class TransactionHandler:
 			'transfer_type': t.transfer_type,
 			'comment': t.comment,
 			'sender': {
-				'id': t.bank_id_sender.student.id if t.bank_id_sender.student else TransactionHandler.MAIN_BANK_ACCOUNT,
-				'first_name': t.bank_id_sender.student.first_name if t.bank_id_sender.student else TransactionHandler.TumoAccount,
-				'last_name': t.bank_id_sender.student.last_name if t.bank_id_sender.student else TransactionHandler.TumoComment,
+				'id': t.bank_id_sender.student.id if hasattr(
+					t.bank_id_sender, 'student') else TransactionHandler.MAIN_BANK_ACCOUNT_ID,
+				'first_name': t.bank_id_sender.student.first_name if hasattr(
+					t.bank_id_sender, 'student') else TransactionHandler.TumoAccount,
+				'last_name': t.bank_id_sender.student.last_name if hasattr(
+					t.bank_id_sender, 'student') else TransactionHandler.TumoComment,
 			},
 			'recipient': {
-				'id': t.bank_id_recipient.student.id if t.bank_id_recipient.student else TransactionHandler.MAIN_BANK_ACCOUNT,
-				'first_name': t.bank_id_recipient.student.first_name if t.bank_id_recipient.student else TransactionHandler.TumoAccount,
-				'last_name': t.bank_id_recipient.student.last_name if t.bank_id_recipient.student else TransactionHandler.TumoComment,
+				'id': t.bank_id_recipient.student.id if hasattr(
+					t.bank_id_recipient, 'student') else TransactionHandler.MAIN_BANK_ACCOUNT_ID,
+				'first_name': t.bank_id_recipient.student.first_name if hasattr(
+					t.bank_id_recipient, 'student') else TransactionHandler.TumoAccount,
+				'last_name': t.bank_id_recipient.student.last_name if hasattr(
+					t.bank_id_recipient, 'student') else TransactionHandler.TumoComment,
 			},
 			'date_time': t.date_time
 		} for t in t_qs]
 
 	@staticmethod
 	def get_all_transfers_from_student(student_id):
-		try:
-			student_bank_account_id = Student.objects.get(id=student_id).bank_account_id
-			transaction_qs = Transaction.objects.select_related(
-				'bank_id_sender__student', 'bank_id_recipient__student'
-			).filter(
-				Q(bank_id_sender=student_bank_account_id) | Q(bank_id_recipient=student_bank_account_id)
-			).order_by('-date_time')
+		# try:
+		student_bank_account_id = Student.objects.get(id=student_id).bank_account_id
+		transaction_qs = Transaction.objects.select_related(
+			'bank_id_sender__student', 'bank_id_recipient__student'
+		).filter(
+			Q(bank_id_sender=student_bank_account_id) | Q(bank_id_recipient=student_bank_account_id)
+		).order_by('-date_time')
 
-			return TransactionHandler._transaction_response(transaction_qs), status.HTTP_200_OK
-		except Student.DoesNotExist:
-			return {'detail': 'Пользователь не найден'}, status.HTTP_400_BAD_REQUEST
+		return TransactionHandler._transaction_response(transaction_qs), status.HTTP_200_OK
+
+	# except Student.DoesNotExist:
+	# 	return {'detail': 'Пользователь не найден'}, status.HTTP_400_BAD_REQUEST
 
 	@staticmethod
 	def get_all_transfers(transfer_type):
