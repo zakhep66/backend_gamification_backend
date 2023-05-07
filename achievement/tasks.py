@@ -12,7 +12,7 @@ class CeleryAchievementTasks:
         first_purchase_achievement = Achievement.objects.get(name='Первая покупка')
 
         # Проверяем, есть ли уже эта ачивка у студента
-        if first_purchase_achievement not in student.achievements.all():
+        if first_purchase_achievement not in student.achievement.all():
             # Добавляем ачивку к студенту
-            student.achievements.add(first_purchase_achievement)
+            student.achievement.add(first_purchase_achievement)
             student.save()
