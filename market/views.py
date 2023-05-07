@@ -43,6 +43,16 @@ class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
             *MarketHandler.get_all_student_buy(request.user.id)
         )
 
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated, ])
+    def opportunity_student_buy(self, request):
+        """
+        Возвращает товары, которые может купить студент
+        """
+        student_id = request.user.id
+        available_products = MarketHandler.get_opportunity_student_buy(student_id)
+        serializer = StoreProductSerializer(available_products, many=True)
+        return Response(serializer.data)
+
 
 class StoreHistoryViewSet(viewsets.ModelViewSet):
     queryset = StoreHistory.objects.all()

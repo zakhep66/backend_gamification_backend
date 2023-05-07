@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models import Q
+
 import utils
 
 from users.models import BankAccount, Student
@@ -41,9 +43,25 @@ class StoreProduct(models.Model):
         return self.name
 
     @staticmethod
-    def get_available_products_for_student(student: Student):
-        bought_products = StoreHistory.objects.filter(
-            buyer_bank_account_id=student.bank_account_id.id,
+    def get_available_products_for_student(student_id: int):
+        """
+        Возвращает список товаров, которые может купить студент
+        """
+        try:
+            student = Student.objects.get(id=student_id)
+        except Student.DoesNotExist:
+            # Handle the case where the student doesn't exist
+            return StoreProduct.objects.none()
+
+        bought_non_merch_products = StoreHistory.objects.filter(
+            buyer_bank_account_id__student__id=student_id
+        ).exclude(
+            store_product_id__product_type='merch'
         ).values_list('store_product_id', flat=True)
-        available_products = StoreProduct.objects.exclude(product_type='merch').exclude(id__in=bought_products)
+
+        available_products = StoreProduct.objects.exclude(
+            Q(id__in=bought_non_merch_products) & ~Q(product_type='merch')
+        )
         return available_products
+
+

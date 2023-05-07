@@ -11,7 +11,7 @@ from .models import Transaction
 
 
 class TransactionHandler:
-	MAIN_BANK_ACCOUNT = int(os.environ.get('MAIN_BANK_ACCOUNT_ID'))
+	MAIN_BANK_ACCOUNT_ID = int(os.environ.get('MAIN_BANK_ACCOUNT_ID'))
 	TumoAccount = 'Tumo account'
 	TumoComment = ''
 
@@ -68,7 +68,7 @@ class TransactionHandler:
 			return {'detail': 'Товар не найден'}, status.HTTP_400_BAD_REQUEST
 		try:
 			sender_account = Student.objects.get(id=sender_id).bank_account_id
-			main_bank_account = BankAccount.objects.get(id=TransactionHandler.MAIN_BANK_ACCOUNT)
+			main_bank_account = BankAccount.objects.get(id=TransactionHandler.MAIN_BANK_ACCOUNT_ID)
 		except Student.DoesNotExist:
 			return {'detail': 'Пользователь не найден'}, status.HTTP_400_BAD_REQUEST
 		except BankAccount.DoesNotExist:
@@ -107,7 +107,7 @@ class TransactionHandler:
 			'comment': t.comment,
 			'sender': {
 				'id': t.bank_id_sender.student.id if hasattr(
-					t.bank_id_sender, 'student') else TransactionHandler.MAIN_BANK_ACCOUNT,
+					t.bank_id_sender, 'student') else TransactionHandler.MAIN_BANK_ACCOUNT_ID,
 				'first_name': t.bank_id_sender.student.first_name if hasattr(
 					t.bank_id_sender, 'student') else TransactionHandler.TumoAccount,
 				'last_name': t.bank_id_sender.student.last_name if hasattr(
@@ -115,7 +115,7 @@ class TransactionHandler:
 			},
 			'recipient': {
 				'id': t.bank_id_recipient.student.id if hasattr(
-					t.bank_id_recipient, 'student') else TransactionHandler.MAIN_BANK_ACCOUNT,
+					t.bank_id_recipient, 'student') else TransactionHandler.MAIN_BANK_ACCOUNT_ID,
 				'first_name': t.bank_id_recipient.student.first_name if hasattr(
 					t.bank_id_recipient, 'student') else TransactionHandler.TumoAccount,
 				'last_name': t.bank_id_recipient.student.last_name if hasattr(

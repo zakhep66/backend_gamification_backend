@@ -46,3 +46,6 @@ class MarketHandler:
         serialized_data = StoreHistorySerializer(data_qs, many=True).data
         return serialized_data, status.HTTP_200_OK
 
+    @staticmethod
+    def get_opportunity_student_buy(student_id):
+        return StoreProduct.get_available_products_for_student(student_id=student_id)
