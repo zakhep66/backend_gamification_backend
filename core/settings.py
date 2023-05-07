@@ -38,12 +38,14 @@ INSTALLED_APPS = [
     'users',
     'transfer',
     'market',
+    'achievement',
 
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
     'drf_yasg',
     'import_export',
+    'celery',
 ]
 
 MIDDLEWARE = [
@@ -177,7 +179,7 @@ SIMPLE_JWT = {
 }
 
 # redis related settings
-REDIS_HOST = "172.17.0.2"
+REDIS_HOST = "localhost"
 REDIS_PORT = "6379"
 
 CELERY_BROKER_URL = "redis://" + REDIS_HOST + ":" + REDIS_PORT + "/0"

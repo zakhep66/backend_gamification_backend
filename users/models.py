@@ -4,6 +4,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
 import utils
+from achievement.models import Achievement
 from users.managers import CustomUserManager, StudentManager, EmployeeManager
 from utils import get_upload_path_for_users
 
@@ -70,7 +71,7 @@ class Student(CustomUser, AbstractUserModel):
     status = models.CharField(max_length=50, choices=STUDENT_STATUS, blank=False, null=False, default='active')
     direction = models.ManyToManyField('Direction', related_name='direction', null=True, blank=True)
     student_profile = models.OneToOneField('StudentProfile', on_delete=models.CASCADE)
-    achievement = models.ManyToManyField('Achievement', related_name='students', blank=True)
+    achievement = models.ManyToManyField(Achievement, related_name='students', blank=True)
 
     objects = StudentManager()
 

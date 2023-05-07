@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from market.models import StoreHistory, StoreProduct
 from market.serializers import StoreHistorySerializer
 from transfer.services import TransactionHandler
+from achievement.tasks import CeleryAchievementTasks
 
 
 class MarketHandler:
@@ -33,7 +34,12 @@ class MarketHandler:
         """
         Покупка товара в магазине
         """
-        return TransactionHandler.market_transaction(product_id=product_id, sender_id=student_id)
+        shop = TransactionHandler.market_transaction(product_id=product_id, sender_id=student_id)
+
+        # ачивка за первую покупку
+        CeleryAchievementTasks.award_achievement_on_first_purchase.delay(student_id)
+
+        return shop
 
     @staticmethod
     def get_all_non_issued_items():
