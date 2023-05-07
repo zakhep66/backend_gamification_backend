@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from market.models import StoreHistory, StoreProduct
 from market.serializers import StoreHistorySerializer
 from transfer.services import TransactionHandler
+from users.models import Student
 
 
 class MarketHandler:
@@ -33,6 +34,25 @@ class MarketHandler:
         """
         Покупка товара в магазине
         """
+        # Получаем объекты студента и товара
+        try:
+            student = Student.objects.get(id=student_id)
+            product = StoreProduct.objects.get(id=product_id)
+        except Student.DoesNotExist:
+            return {'detail': 'Пользователь не найден'}, status.HTTP_400_BAD_REQUEST
+        except StoreProduct.DoesNotExist:
+            return {'detail': 'Товар не найден'}, status.HTTP_400_BAD_REQUEST
+
+        # Проверяем, купил ли студент этот товар ранее
+        if product.product_type != 'merch':
+            already_bought = StoreHistory.objects.filter(
+                store_product_id=product_id,
+                buyer_bank_account_id=student.bank_account_id
+            ).exists()
+            if already_bought:
+                return {'detail': 'Вы уже купили этот товар'}, status.HTTP_400_BAD_REQUEST
+
+        # Выполняем транзакцию на покупку товара
         return TransactionHandler.market_transaction(product_id=product_id, sender_id=student_id)
 
     @staticmethod
