@@ -126,18 +126,18 @@ class TransactionHandler:
 
 	@staticmethod
 	def get_all_transfers_from_student(student_id):
-		# try:
-		student_bank_account_id = Student.objects.get(id=student_id).bank_account_id
-		transaction_qs = Transaction.objects.select_related(
-			'bank_id_sender__student', 'bank_id_recipient__student'
-		).filter(
-			Q(bank_id_sender=student_bank_account_id) | Q(bank_id_recipient=student_bank_account_id)
-		).order_by('-date_time')
+		try:
+			student_bank_account_id = Student.objects.get(id=student_id).bank_account_id
+			transaction_qs = Transaction.objects.select_related(
+				'bank_id_sender__student', 'bank_id_recipient__student'
+			).filter(
+				Q(bank_id_sender=student_bank_account_id) | Q(bank_id_recipient=student_bank_account_id)
+			).order_by('-date_time')
 
-		return TransactionHandler._transaction_response(transaction_qs), status.HTTP_200_OK
+			return TransactionHandler._transaction_response(transaction_qs), status.HTTP_200_OK
 
-	# except Student.DoesNotExist:
-	# 	return {'detail': 'Пользователь не найден'}, status.HTTP_400_BAD_REQUEST
+		except Student.DoesNotExist:
+			return {'detail': 'Пользователь не найден'}, status.HTTP_400_BAD_REQUEST
 
 	@staticmethod
 	def get_all_transfers(transfer_type):
