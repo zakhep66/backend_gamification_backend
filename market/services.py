@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from market.models import StoreHistory, StoreProduct
-from market.serializers import StoreHistorySerializer
+from market.serializers import StoreHistorySerializer, IssuedStoreHistorySerializer
 from transfer.services import TransactionHandler
 from achievement.tasks import CeleryAchievementTasks
 from users.models import Student
@@ -61,10 +61,10 @@ class MarketHandler:
         """
         Возвращает json данные
         """
-        data_qs = StoreHistory.objects.select_related('store_product_id').filter(
+        data_qs = StoreHistory.objects.select_related('store_product_id', 'buyer_bank_account_id__student').filter(
             status=False, store_product_id__product_type='merch'
         )
-        serialized_data = StoreHistorySerializer(data_qs, many=True).data
+        serialized_data = IssuedStoreHistorySerializer(data_qs, many=True).data
         return serialized_data, status.HTTP_200_OK
 
     @staticmethod
