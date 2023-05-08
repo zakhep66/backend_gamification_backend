@@ -22,8 +22,8 @@ class AchievementViewSet(viewsets.ReadOnlyModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         raise exceptions.MethodNotAllowed(request.method)
 
-    @action(detail=False, methods=['get'], permission_classes=[IsStudent, ])
+    @action(detail=False, methods=['post'], permission_classes=[IsStudent, ])
     def student_achievement(self, request):
         return Response(
-            *AchievementHandler.get_student_achievement(student_id=request.user.id)
+            *AchievementHandler.get_student_achievement(student_id=request.data.get('student_id'))
         )

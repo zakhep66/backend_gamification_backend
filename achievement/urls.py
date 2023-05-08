@@ -5,7 +5,7 @@ from achievement.views import AchievementViewSet
 
 router = DefaultRouter()
 router.register(r'achievement', AchievementViewSet, basename='achievement')
-student_achievement = AchievementViewSet.as_view({'get': 'student_achievement'}, basename='student_achievement')
+student_achievement = AchievementViewSet.as_view({'post': 'student_achievement'}, basename='student_achievement')
 
 
 urlpatterns = [
