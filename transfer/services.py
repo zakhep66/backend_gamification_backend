@@ -89,7 +89,7 @@ class TransactionHandler:
 			bank_id_recipient=main_bank_account,
 			sum_count=product.price,
 			transfer_type=transfer_type,
-			comment=f'Покупка товара: {product.name}'
+			comment=str(product.name)
 		)
 
 		StoreHistory.objects.create(
