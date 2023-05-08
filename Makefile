@@ -8,5 +8,5 @@ redis_start:
 celery_start:
 	celery -A core worker --loglevel=info
 
-start_app:
+app_start:
 	python manage.py runserver
