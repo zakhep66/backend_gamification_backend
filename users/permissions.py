@@ -19,6 +19,10 @@ class IsEmployee(permissions.BasePermission):
 
 
 class IsEmployeeManager(permissions.BasePermission):
+    """
+     Разрешает доступ только пользователям, которые являются экземплярами модели Employee и имеют роль
+     пользователя Manager.
+     """
     def has_permission(self, request, view):
         if request.user.is_authenticated:
             try:
@@ -31,6 +35,10 @@ class IsEmployeeManager(permissions.BasePermission):
 
 
 class IsEmployeeManagerOrCouch(permissions.BasePermission):
+    """
+     Разрешает доступ только пользователям, которые являются экземплярами модели Employee
+     и имеют роль пользователя Manager или Couch.
+     """
     def has_permission(self, request, view):
         if request.user.is_authenticated:
             try:
