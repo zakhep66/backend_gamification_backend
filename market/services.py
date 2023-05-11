@@ -44,6 +44,10 @@ class MarketHandler:
         except StoreProduct.DoesNotExist:
             return {'detail': 'Товар не найден'}, status.HTTP_400_BAD_REQUEST
 
+        # Проверяем, есть ли товар в наличии
+        if not product.in_stock:
+            return {'detail': 'Товар временно недоступен'}, status.HTTP_400_BAD_REQUEST
+
         # Проверяем, купил ли студент этот товар ранее
         if product.product_type != 'merch':
             already_bought = StoreHistory.objects.filter(

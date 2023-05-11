@@ -34,6 +34,7 @@ class StoreProduct(models.Model):
     image = models.ImageField(upload_to=utils.get_upload_path_for_market_image)
     price = models.PositiveIntegerField(null=False, blank=False)
     product_type = models.CharField(max_length=50, choices=PRODUCT_TYPE)
+    in_stock = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Товар'
@@ -61,7 +62,7 @@ class StoreProduct(models.Model):
 
         available_products = StoreProduct.objects.exclude(
             Q(id__in=bought_non_merch_products) & ~Q(product_type='merch')
+        ).filter(
+            in_stock=True
         )
         return available_products
-
-
