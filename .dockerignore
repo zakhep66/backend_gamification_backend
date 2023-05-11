@@ -1,0 +1,14 @@
+*.pyc
+__pycache__/
+*.sqlite3
+*.pyo
+*.egg-info/
+*.egg
+*.log
+*.swp
+*.swo
+*.bak
+*.cache
+*.sass-cache
+node_modules/
+bower_components/
