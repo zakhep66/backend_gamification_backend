@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -10,7 +10,13 @@ from .servises import BankAccountHandler
 from .user_views import CustomAuthentication
 
 
-class DirectionViewSet(viewsets.ModelViewSet):
+class DirectionViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet
+):
     queryset = Direction.objects.all()
     serializer_class = DirectionSerializer
     permission_classes = [IsAdminUser, ]

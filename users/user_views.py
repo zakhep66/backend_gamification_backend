@@ -1,7 +1,7 @@
 import os
 
 from django.db import transaction
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, mixins
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser, OR
 from rest_framework.response import Response
@@ -30,7 +30,12 @@ class CustomAuthentication(BaseAuthentication):
             return None
 
 
-class StudentViewSet(viewsets.ModelViewSet):
+class StudentViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet
+):
     """
     API endpoint для просмотра и редактирования пользователей.
     """
@@ -80,9 +85,14 @@ class ShortStudentInfoViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
 
-class EmployeeViewSet(viewsets.ModelViewSet):
+class EmployeeViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet
+):
     """
-    API endpoint для просмотра и редактирования пользователей.
+    Представление сотрудников.
     """
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
@@ -91,7 +101,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         """
-        Определяем права доступа к методам.
+        Определяет права доступа к методам.
         """
 
         if self.action in ['list', 'retrieve']:

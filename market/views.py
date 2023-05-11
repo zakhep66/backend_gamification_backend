@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, mixins
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -29,6 +29,7 @@ class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
+    # необязательный метод, пусть пока что будет
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.serializer_class(instance)
@@ -54,7 +55,12 @@ class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
 
-class StoreHistoryViewSet(viewsets.ModelViewSet):
+class StoreHistoryViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet
+):
     queryset = StoreHistory.objects.all()
     serializer_class = StoreHistorySerializer
     authentication_classes = [CustomAuthentication, ]
