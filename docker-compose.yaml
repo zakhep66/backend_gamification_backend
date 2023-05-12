@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:12.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_DB=mydatabase
+
+  redis:
+    image: redis:5.0.5-alpine
+
+  web:
+    build:
+      context: ./
+      dockerfile: Dockerfile_django
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./:/app
+      - static_volume:/app/static
+      - media_volume:/app/media
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DJANGO_SETTINGS_MODULE=core.settings
+      - DATABASE_URL=postgres://myuser:mypassword@db:5432/mydatabase
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+    entrypoint: ["/app/entrypoint.sh", "db"]
+
+  celery:
+    build:
+      context: ./
+      dockerfile: Dockerfile_celery
+    command: celery -A core worker --loglevel=info
+    volumes:
+      - ./:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DJANGO_SETTINGS_MODULE=core.settings
+      - DATABASE_URL=postgres://myuser:mypassword@db:5432/mydatabase
+      - CELERY_BROKER_URL=redis://redis:6379/0
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:

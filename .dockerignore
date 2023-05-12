@@ -1,5 +1,6 @@
 *.pyc
 __pycache__/
+migrations/
 *.sqlite3
 *.pyo
 *.egg-info/
@@ -12,3 +13,4 @@ __pycache__/
 *.sass-cache
 node_modules/
 bower_components/
+venv

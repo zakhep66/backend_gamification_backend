@@ -1,33 +1,28 @@
 # Используем официальный образ Python в качестве базового
 FROM python:3.9-slim-buster
 
-# Устанавливаем переменную окружения для Python
-ENV PYTHONUNBUFFERED 1
+# Устанавливаем переменные окружения
 ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Устанавливаем зависимости для postgresql-client
+RUN apt-get update && apt-get install -y postgresql-client
 
 # Создаем директорию для нашего приложения
-RUN mkdir /app
-
-# Устанавливаем рабочую директорию
 WORKDIR /app
 
 # Копируем файлы зависимостей в директорию приложения
 COPY req.txt /app/
 
 # Устанавливаем зависимости
-RUN python -m pip install --upgrade pip
 RUN pip install --no-cache-dir -r req.txt
 
-# Копируем все файлы проекта в директорию приложения
+# Копируем весь проект в директорию приложения
 COPY . /app/
 
-# Запускаем команду для миграции базы данных
-RUN python manage.py makemigrations
-RUN python manage.py migrate
-RUN python manage.py createsuperuser
+# Копируем скрипт entrypoint в контейнер и делаем его исполняемым
+COPY ./entrypoint.sh /app/
+RUN chmod +x /app/entrypoint.sh
 
-# Открываем порт для веб-сервера
-EXPOSE 8000
-
-# Запускаем сервер Django
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Запускаем сервер Django через скрипт entrypoint
+CMD ["/app/entrypoint.sh", "db", "python", "manage.py", "runserver", "0.0.0.0:8000"]
