@@ -19,10 +19,3 @@ RUN pip install --no-cache-dir -r req.txt
 
 # Копируем весь проект в директорию приложения
 COPY . /app/
-
-# Копируем скрипт entrypoint в контейнер и делаем его исполняемым
-COPY ./entrypoint.sh /app/
-RUN chmod +x /app/entrypoint.sh
-
-# Запускаем сервер Django через скрипт entrypoint
-CMD ["/app/entrypoint.sh", "db", "python", "manage.py", "runserver", "0.0.0.0:8000"]

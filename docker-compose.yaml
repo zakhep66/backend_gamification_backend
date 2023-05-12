@@ -15,11 +15,11 @@ services:
 
   web:
     build:
-      context: ./
+      context: .
       dockerfile: Dockerfile_django
-    command: python manage.py runserver 0.0.0.0:8000
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./:/app
+      - .:/app
       - static_volume:/app/static
       - media_volume:/app/media
     ports:
@@ -31,17 +31,14 @@ services:
       - DJANGO_SETTINGS_MODULE=core.settings
       - DATABASE_URL=postgres://myuser:mypassword@db:5432/mydatabase
       - CELERY_BROKER_URL=redis://redis:6379/0
-      - POSTGRES_USER=myuser
-      - POSTGRES_PASSWORD=mypassword
-    entrypoint: ["/app/entrypoint.sh", "db"]
 
   celery:
     build:
-      context: ./
+      context: .
       dockerfile: Dockerfile_celery
     command: celery -A core worker --loglevel=info
     volumes:
-      - ./:/app
+      - .:/app
     depends_on:
       - db
       - redis
