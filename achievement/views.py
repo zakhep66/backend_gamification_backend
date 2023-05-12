@@ -24,6 +24,9 @@ class AchievementViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=False, methods=['post'], permission_classes=[IsStudent, ])
     def student_achievement(self, request):
+        """
+        Возвращает ачивки студента
+        """
         return Response(
             *AchievementHandler.get_student_achievement(student_id=request.data.get('student_id'))
         )

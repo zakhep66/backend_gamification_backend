@@ -58,12 +58,17 @@ class MarketHandler:
                 return {'detail': 'Вы уже купили этот товар'}, status.HTTP_400_BAD_REQUEST
 
         # Выполняем транзакцию на покупку товара
-        return TransactionHandler.market_transaction(product_id=product_id, sender_id=student_id)
+        shop = TransactionHandler.market_transaction(product_id=product_id, sender_id=student_id)
+
+        # ачивка за первую покупку
+        CeleryAchievementTasks.award_achievement_on_first_purchase.delay(student_id)
+
+        return shop
 
     @staticmethod
     def get_all_non_issued_items():
         """
-        Возвращает json данные
+        Возвращает все не выданные товары типа merch
         """
         data_qs = StoreHistory.objects.select_related('store_product_id', 'buyer_bank_account_id__student').filter(
             status=False, store_product_id__product_type='merch'

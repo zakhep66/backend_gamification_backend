@@ -9,6 +9,7 @@ class Achievement(models.Model):
 	sum_reward = models.PositiveIntegerField()
 	description = models.TextField()
 	date_time = models.DateTimeField(auto_now_add=True)
+	achievement_type = models.ForeignKey('AchievementType', on_delete=models.CASCADE, related_name='achievement')
 
 	class Meta:
 		verbose_name = 'Ачивка'
@@ -16,3 +17,14 @@ class Achievement(models.Model):
 
 	def __str__(self):
 		return self.name
+
+
+class AchievementType(models.Model):
+	name = models.CharField(max_length=50, blank=False, null=False)
+
+	def __str__(self):
+		return self.name
+
+	class Meta:
+		verbose_name = 'Тип ачивки'
+		verbose_name_plural = 'Типы ачивок'
