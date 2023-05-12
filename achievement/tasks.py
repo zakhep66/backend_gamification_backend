@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from achievement.models import Achievement
+from achievement.models import Achievement, AchievementType
 from users.models import Student
 
 
@@ -9,7 +9,8 @@ class CeleryAchievementTasks:
     @shared_task
     def award_achievement_on_first_purchase(student_id):
         student = Student.objects.get(id=student_id)
-        first_purchase_achievement = Achievement.objects.get(achievement_type='first_buy')
+        achievement_type = AchievementType.objects.get(name='first_buy')
+        first_purchase_achievement = Achievement.objects.get(achievement_type=achievement_type)
 
         # Проверяем, есть ли уже эта ачивка у студента
         if first_purchase_achievement not in student.achievement.all():

@@ -18,7 +18,7 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2'),
+            'fields': ('email', 'password1', 'password2', 'first_name', 'last_name', ),
         }),
     )
     readonly_fields = ('password_placeholder',)
@@ -45,8 +45,14 @@ class StudentAdmin(CustomUserAdmin, ImportExportModelAdmin):
     )
     list_display = CustomUserAdmin.list_display + (
         'telegram', 'about', 'portfolio_link', 'in_lite', 'bank_account_id', 'status', 'direction_list',
-        'student_profile',
-        'achievement_list')
+        'student_profile', 'achievement_list'
+    )
+    add_fieldsets = CustomUserAdmin.add_fieldsets + (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('in_lite', 'bank_account_id', 'student_profile', 'user_role'),
+        }),
+    )
 
     def save_model(self, request, obj, form, change):
         if change and form.cleaned_data["password"]:
@@ -70,12 +76,18 @@ class EmployeeAdmin(CustomUserAdmin, ImportExportModelAdmin):
     resource_class = EmployeeResource
 
     fieldsets = CustomUserAdmin.fieldsets + (
-        (_('Student Information'), {'fields': (
-            'first_fact', 'second_fact', 'false_fact', 'direction',
+        (_('Employee Information'), {'fields': (
+            'first_fact', 'second_fact', 'false_fact', 'direction', 'user_role'
         )}),
     )
     list_display = CustomUserAdmin.list_display + (
         'first_fact', 'second_fact', 'false_fact', 'direction',
+    )
+    add_fieldsets = CustomUserAdmin.add_fieldsets + (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('user_role', ),
+        }),
     )
 
     def save_model(self, request, obj, form, change):

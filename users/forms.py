@@ -2,7 +2,6 @@ from django.contrib.auth.forms import AdminPasswordChangeForm
 
 
 class CustomAdminPasswordChangeForm(AdminPasswordChangeForm):
-
 	def clean_password2(self):
 		"""
 		Отключение проверки сложности пароля.
