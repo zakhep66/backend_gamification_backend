@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 
+from achievement.tasks import CeleryAchievementTasks
 from .models import Student, Employee, BankAccount, StudentProfile
 from .permissions import IsEmployeeManager, IsEmployeeManagerOrCouch
 from .serializers import StudentSerializer, EmployeeSerializer, BankAccountSerializer, \
@@ -171,6 +172,8 @@ class ProfileView(APIView):
 
             if 'password' in request.data:
                 request.data.pop('password')
+            if 'image' in request.data:
+                CeleryAchievementTasks.award_achievement_on_first_change_avatar.delay(student_id=user_id)
 
             serializer = StudentSerializer(instance=student, data=request.data, partial=True)
             if serializer.is_valid():
