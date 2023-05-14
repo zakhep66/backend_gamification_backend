@@ -54,10 +54,10 @@ class StudentAdmin(CustomUserAdmin, ImportExportModelAdmin):
         }),
     )
 
-    def save_model(self, request, obj, form, change):
-        if change and form.cleaned_data["password"]:
-            obj.password = make_password(form.cleaned_data["password"])
-        super().save_model(request, obj, form, change)
+    # def save_model(self, request, obj, form, change):
+    #     if change and form.cleaned_data["password"]:
+    #         obj.password = make_password(form.cleaned_data["password"])
+    #     super().save_model(request, obj, form, change)
 
     def direction_list(self, obj):
         return ", ".join([direction.name for direction in obj.direction.all()])
