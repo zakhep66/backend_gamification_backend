@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'transfer',
     'market',
     'achievement',
+    'quest',
 
     'rest_framework',
     'rest_framework_simplejwt',
