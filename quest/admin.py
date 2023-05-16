@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from quest.models import Quest, QuestType
+
+
+admin.site.register(Quest)
+admin.site.register(QuestType)

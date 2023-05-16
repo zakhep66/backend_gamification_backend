@@ -55,8 +55,29 @@ class TransactionHandler:
 		return {'detail': 'Транзакция успешно создана'}, status.HTTP_201_CREATED
 
 	@staticmethod
-	def achievement_transaction():
-		...
+	@transaction.atomic()
+	def quest_transaction(student_id: int, award_sum: int):
+		# todo нужно написать метод для перевода вознаграждения студенту за выполнение квеста
+		transfer_type = 'quest'
+		try:
+			sender_account = BankAccount.objects.get(id=TransactionHandler.MAIN_BANK_ACCOUNT_ID)
+			recipient_account = BankAccount.objects.get(student=student_id)
+		except BankAccount.DoesNotExist:
+			return {'detail': 'Не найден банковский аккаунт'}, status.HTTP_400_BAD_REQUEST
+
+		sender_account.balance -= award_sum
+		recipient_account.balance += award_sum
+		sender_account.save()
+		recipient_account.save()
+
+		Transaction.objects.create(
+			bank_id_sender=sender_account,
+			bank_id_recipient=recipient_account,
+			sum_count=award_sum,
+			transfer_type=transfer_type,
+			comment='Награда за выполнение квеста'
+		)
+		return {'detail': 'Награда зачислена'}, status.HTTP_200_OK
 
 	@staticmethod
 	@transaction.atomic()
