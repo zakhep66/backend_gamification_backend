@@ -57,8 +57,11 @@ class MarketHandler:
             if already_bought:
                 return {'detail': 'Вы уже купили этот товар'}, status.HTTP_400_BAD_REQUEST
 
-        # Выполняем транзакцию на покупку товара
-        shop = TransactionHandler.market_transaction(product_id=product_id, sender_id=student_id)
+        try:
+            shop = TransactionHandler.market_transaction(product_id=product_id, sender_id=student_id)
+        except Exception as e:
+            error_message = str(e)  # Получение сообщения об ошибке
+            return {'detail': error_message}, status.HTTP_400_BAD_REQUEST
 
         # ачивка за первую покупку
         CeleryAchievementTasks.award_achievement_on_first_purchase.delay(student_id)

@@ -3,6 +3,7 @@ import os
 from django.db import transaction
 from django.db.models import Q
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from market.models import StoreProduct, StoreHistory
@@ -56,19 +57,24 @@ class TransactionHandler:
 
 	@staticmethod
 	@transaction.atomic()
-	def quest_transaction(student_id: int, award_sum: int):
-		# todo нужно написать метод для перевода вознаграждения студенту за выполнение квеста
+	def quest_transaction(student_id: Student, award_sum: int):
 		transfer_type = 'quest'
 		try:
 			sender_account = BankAccount.objects.get(id=TransactionHandler.MAIN_BANK_ACCOUNT_ID)
 			recipient_account = BankAccount.objects.get(student=student_id)
-		except BankAccount.DoesNotExist:
-			return {'detail': 'Не найден банковский аккаунт'}, status.HTTP_400_BAD_REQUEST
 
-		sender_account.balance -= award_sum
-		recipient_account.balance += award_sum
-		sender_account.save()
-		recipient_account.save()
+			if sender_account.balance < award_sum:
+				error_message = 'Вы обанкротили Тумо. Недостаточно средств'
+				raise ValidationError(error_message)
+
+			sender_account.balance -= award_sum
+			recipient_account.balance += award_sum
+			sender_account.save()
+			recipient_account.save()
+
+		except BankAccount.DoesNotExist:
+			error_message = 'Не найден банковский аккаунт'
+			return str(Exception(error_message)), status.HTTP_400_BAD_REQUEST
 
 		Transaction.objects.create(
 			bank_id_sender=sender_account,
@@ -86,19 +92,19 @@ class TransactionHandler:
 		try:
 			product = StoreProduct.objects.get(id=product_id)
 		except StoreProduct.DoesNotExist:
-			return {'detail': 'Товар не найден'}, status.HTTP_400_BAD_REQUEST
+			raise Exception('Товар не найден')
 		try:
 			sender_account = Student.objects.get(id=sender_id).bank_account_id
 			main_bank_account = BankAccount.objects.get(id=TransactionHandler.MAIN_BANK_ACCOUNT_ID)
 		except Student.DoesNotExist:
-			return {'detail': 'Пользователь не найден'}, status.HTTP_400_BAD_REQUEST
+			raise Exception('Пользователь не найден')
 		except BankAccount.DoesNotExist:
-			return {'detail': 'Не найден главный банковский аккаунт'}, status.HTTP_400_BAD_REQUEST
+			raise Exception('Не найден главный банковский аккаунт')
 
 		if not sender_account.is_active:
-			return {'detail': 'Ваш счёт заблокирован'}, status.HTTP_400_BAD_REQUEST
+			raise Exception('Ваш счёт заблокирован')
 		elif sender_account.balance < product.price:
-			return {'detail': 'Недостаточно средств на счёте'}, status.HTTP_400_BAD_REQUEST
+			raise Exception('Недостаточно средств на счёте')
 
 		sender_account.balance -= product.price
 		main_bank_account.balance += product.price
