@@ -56,6 +56,27 @@ class QuestViewSet(
 
 		return Response(serializer.data, status=status.HTTP_200_OK)
 
+	@action(detail=False, methods=['get'], permission_classes=[IsAuthenticated, ])
+	def all_is_active_quest(self, request):
+		"""
+		Возвращает все активные квесты
+		"""
+		return Response(
+			*QuestHandler.get_all_is_active()
+		)
+
+	@action(detail=False, methods=['post'], permission_classes=[IsAuthenticated, ])
+	def student_quest(self, request):
+		return Response(
+			*QuestHandler.get_student_quest(student_id=request.data.get('student_id'))
+		)
+
+	@action(detail=False, methods=['post'], permission_classes=[IsAuthenticated, ])
+	def employee_quest(self, request):
+		return Response(
+			*QuestHandler.get_employee_quest(employee_id=request.data.get('employee_id'))
+		)
+
 
 class QuestTypeViewSet(viewsets.ReadOnlyModelViewSet):
 	queryset = QuestType.objects.all()
