@@ -156,7 +156,11 @@ class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 
 
 class EmployeeSerializer(BaseUserSerializer, GetEmployeeInfo):
-	direction = serializers.SerializerMethodField()
+	direction = serializers.PrimaryKeyRelatedField(
+		queryset=Direction.objects.all(),
+		required=False,  # Optional field during update
+		allow_null=True  # Allow null value during update
+	)
 
 	def create(self, validated_data):
 		validated_data['password'] = make_password(validated_data['password'])
@@ -166,6 +170,13 @@ class EmployeeSerializer(BaseUserSerializer, GetEmployeeInfo):
 		if 'password' in validated_data:
 			validated_data['password'] = make_password(validated_data['password'])
 		return super().update(instance, validated_data)
+
+	def to_representation(self, instance):
+		# Convert Direction instance to its full representation
+		representation = super().to_representation(instance)
+		direction = instance.direction
+		representation['direction'] = DirectionSerializer(direction).data if direction else None
+		return representation
 
 	class Meta:
 		model = Employee
