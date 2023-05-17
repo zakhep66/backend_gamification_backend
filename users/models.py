@@ -1,5 +1,4 @@
 from django.contrib.auth.base_user import AbstractBaseUser
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
@@ -91,7 +90,7 @@ class StudentProfile(models.Model):
         verbose_name_plural = 'Профили'
 
     def __str__(self):
-        return f'Профиль студента'
+        return 'Профиль студента'
 
 
 class BankAccount(models.Model):
