@@ -26,7 +26,9 @@ class StoreProduct(models.Model):
     PRODUCT_TYPE = (
         ('merch', 'merch'),
         ('back_color', 'back_color'),
-        ('emoji', 'emoji')
+        ('emoji_status', 'emoji_status'),
+        ('emoji_sticker', 'emoji_sticker'),
+        ('border_color', 'border_color')
     )
 
     name = models.CharField(max_length=50, null=False, blank=False)
@@ -49,7 +51,7 @@ class StoreProduct(models.Model):
         Возвращает список товаров, которые может купить студент
         """
         try:
-            student = Student.objects.get(id=student_id)
+            Student.objects.get(id=student_id)
         except Student.DoesNotExist:
             # Handle the case where the student doesn't exist
             return StoreProduct.objects.none()
