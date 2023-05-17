@@ -1,10 +1,9 @@
 import os
 
 from django.contrib.auth.hashers import make_password
-from rest_framework import serializers, status
-from rest_framework.response import Response
+from rest_framework import serializers
 
-from .models import Student, Employee, CustomUser, BankAccount, Direction, StudentProfile
+from .models import Student, Employee, BankAccount, Direction, StudentProfile
 from .users_relation_info_serializer import GetStudentInfo, BaseUserSerializer, GetEmployeeInfo
 
 

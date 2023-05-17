@@ -1,16 +1,13 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from transfer.models import Transaction
 from transfer.serializers import TransactionSerializer
-from users.models import BankAccount, Student
 from users.user_views import CustomAuthentication
 from .permissions import IsStudent
 from .services import TransactionHandler
-# from .tasks import process_transaction
 
 
 class TransactionViewSet(viewsets.ReadOnlyModelViewSet):

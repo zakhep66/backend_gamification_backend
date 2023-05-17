@@ -1,19 +1,14 @@
-import os
-
-from django.db import transaction
-from rest_framework import viewsets, status, mixins
+from rest_framework import viewsets, mixins
 from rest_framework.authentication import BaseAuthentication
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser, OR
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.exceptions import AuthenticationFailed
 
 from achievement.tasks import CeleryAchievementTasks
-from .models import Student, Employee, BankAccount, StudentProfile
+from .models import Student, Employee
 from .permissions import IsEmployeeManager, IsEmployeeManagerOrCouch
-from .serializers import StudentSerializer, EmployeeSerializer, BankAccountSerializer, \
-    ShortStudentInfoSerializer, StudentProfileSerializer
+from .serializers import StudentSerializer, EmployeeSerializer, ShortStudentInfoSerializer
 
 
 class CustomAuthentication(BaseAuthentication):

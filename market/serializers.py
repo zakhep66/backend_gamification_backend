@@ -28,5 +28,3 @@ class IssuedStoreHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = StoreHistory
         fields = ('id', 'product_id', 'product_name', 'product_description', 'product_image', 'student_id', 'student_first_name', 'student_last_name', 'date_time')
-
-

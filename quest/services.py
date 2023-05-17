@@ -4,7 +4,6 @@ from rest_framework import status
 from quest.models import Quest
 from quest.serializers import QuestSerializer
 from transfer.services import TransactionHandler
-from users.models import Student
 
 from rest_framework.exceptions import ValidationError
 

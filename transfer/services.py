@@ -4,7 +4,6 @@ from django.db import transaction
 from django.db.models import Q
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.response import Response
 
 from market.models import StoreProduct, StoreHistory
 from users.models import Student, BankAccount
@@ -19,10 +18,10 @@ class TransactionHandler:
 	@staticmethod
 	@transaction.atomic()
 	def transfer_student_to_student(
-			sender_id: int,
-			recipient_id: int,
-			amount: int,
-			comment: str = '') -> tuple:
+		sender_id: int,
+		recipient_id: int,
+		amount: int,
+		comment: str = '') -> tuple:
 		transfer_type = 'transfer'
 		try:
 			sender_account = Student.objects.get(id=sender_id).bank_account_id

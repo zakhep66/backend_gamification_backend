@@ -1,8 +1,7 @@
 from rest_framework import status
-from rest_framework.response import Response
 
 from market.models import StoreHistory, StoreProduct
-from market.serializers import StoreHistorySerializer, IssuedStoreHistorySerializer
+from market.serializers import IssuedStoreHistorySerializer
 from transfer.services import TransactionHandler
 from achievement.tasks import CeleryAchievementTasks
 from users.models import Student
