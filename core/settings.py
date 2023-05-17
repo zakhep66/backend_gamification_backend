@@ -69,6 +69,10 @@ REST_FRAMEWORK = {
     )
 }
 
+CORS_ALLOWED_ORIGINS = [
+    os.environ.get('CORS_ALLOW')
+]
+
 CORS_ORIGIN_WHITELIST = [
     os.environ.get('CORS_ALLOW')
 ]
