@@ -1,27 +1,33 @@
 from rest_framework import serializers
 
 from quest.models import Quest, QuestType
+from users.models import Employee, Student
 from users.serializers import EmployeeSerializer, StudentSerializer
 
 
 class QuestSerializer(serializers.ModelSerializer):
-	employee_id = serializers.SerializerMethodField()
-	student_id = serializers.SerializerMethodField()
+	employee_id = serializers.PrimaryKeyRelatedField(queryset=Employee.objects.all())
+	student_id = serializers.PrimaryKeyRelatedField(queryset=Student.objects.all(), required=False)
 
-	def get_employee_id(self, obj):
-		return {
-			'id': obj.employee_id.id,
-			'first_name': obj.employee_id.first_name,
-			'last_name': obj.employee_id.last_name,
-			'user_role': obj.employee_id.user_role
+	def to_representation(self, instance):
+		representation = super().to_representation(instance)
+		representation['employee'] = {
+			'id': instance.employee_id.id,
+			'first_name': instance.employee_id.first_name,
+			'last_name': instance.employee_id.last_name
 		}
-
-	def get_student_id(self, obj):
-		return {
-			'id': obj.student_id.id,
-			'first_name': obj.student_id.first_name,
-			'last_name': obj.student_id.last_name
-		} if obj.student_id else None
+		student_id = instance.student_id
+		if student_id:
+			representation['student'] = {
+				'id': student_id.id,
+				'first_name': student_id.first_name,
+				'last_name': student_id.last_name
+			}
+		else:
+			representation['student'] = None
+		representation.pop('employee_id')
+		representation.pop('student_id')
+		return representation
 
 	class Meta:
 		model = Quest
