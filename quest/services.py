@@ -22,18 +22,18 @@ class QuestHandler:
 
     @staticmethod
     def get_all_is_active():
-        quests = Quest.objects.filter(is_active=True)
+        quests = Quest.objects.filter(is_active=True).order_by('-id')
         serializer = QuestSerializer(quests, many=True)
         return serializer.data, status.HTTP_200_OK
 
     @staticmethod
     def get_student_quest(student_id: int):
-        qs = Quest.objects.filter(student_id=student_id)
+        qs = Quest.objects.filter(student_id=student_id).order_by('-id')
         serializer = QuestSerializer(qs, many=True)
         return serializer.data, status.HTTP_200_OK
 
     @staticmethod
     def get_employee_quest(employee_id: int):
-        qs = Quest.objects.filter(employee_id=employee_id)
+        qs = Quest.objects.filter(employee_id=employee_id).order_by('-id')
         serializer = QuestSerializer(qs, many=True)
         return serializer.data, status.HTTP_200_OK
