@@ -9,7 +9,7 @@ class Quest(models.Model):
 	type = models.ForeignKey('QuestType', on_delete=models.CASCADE)
 	name = models.CharField(max_length=50)
 	description = models.TextField()
-	sum = models.PositiveIntegerField(default=0)
+	sum = models.PositiveIntegerField(blank=False, null=False)
 	date_time = models.DateTimeField(auto_now_add=True)
 	is_active = models.BooleanField(default=True)
 
