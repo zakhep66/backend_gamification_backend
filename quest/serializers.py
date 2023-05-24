@@ -14,7 +14,8 @@ class QuestSerializer(serializers.ModelSerializer):
 		representation['employee'] = {
 			'id': instance.employee_id.id,
 			'first_name': instance.employee_id.first_name,
-			'last_name': instance.employee_id.last_name
+			'last_name': instance.employee_id.last_name,
+			'user_role': instance.employee_id.user_role
 		}
 		student_id = instance.student_id
 		if student_id:
