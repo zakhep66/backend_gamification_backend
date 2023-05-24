@@ -41,9 +41,9 @@ class QuestViewSet(
 	def partial_update(self, request, *args, **kwargs):
 		quest = self.get_object()
 
-		if request.data.get('is_active', None) is False and quest.student_id is not None:
+		if request.data.get('is_active', None) is False and (student_id := request.data.get('student_id')):
 			try:
-				QuestHandler.quest_completed(quest=quest)
+				QuestHandler.quest_completed(quest=quest, student_id=student_id)
 			except Exception as e:
 				error_message = str(e)
 				error_response = {'detail': error_message}

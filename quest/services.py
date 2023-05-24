@@ -11,9 +11,9 @@ from rest_framework.exceptions import ValidationError
 class QuestHandler:
     @staticmethod
     @transaction.atomic()
-    def quest_completed(quest: Quest):
+    def quest_completed(quest: Quest, student_id: int):
         try:
-            TransactionHandler.quest_transaction(student_id=quest.student_id, award_sum=quest.sum)
+            TransactionHandler.quest_transaction(student_id=student_id, award_sum=quest.sum)
         except Exception as e:
             error_message = str(e)
             raise ValidationError(error_message)

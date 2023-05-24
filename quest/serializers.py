@@ -33,6 +33,9 @@ class QuestSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Quest
 		fields = '__all__'
+		extra_kwargs = {
+			'student_id': {'required': False},
+		}
 
 
 class QuestTypeSerializer(serializers.ModelSerializer):
