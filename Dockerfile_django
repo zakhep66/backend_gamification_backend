@@ -6,13 +6,16 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Создаем директорию для нашего приложения
-WORKDIR /app
+WORKDIR /code
 
 # Копируем файлы зависимостей в директорию приложения
-COPY req.txt /app/
+COPY req.txt .
 
 # Устанавливаем зависимости
 RUN pip install --no-cache-dir -r req.txt
 
 # Копируем весь проект в директорию приложения
-COPY . /app/
+COPY . .
+
+EXPOSE 8000
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

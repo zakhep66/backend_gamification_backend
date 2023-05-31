@@ -13,15 +13,15 @@ services:
   redis:
     image: redis:5.0.5-alpine
 
-  web:
+  server:
     build:
-      context: .
+      context: ./gamification_backend
       dockerfile: Dockerfile_django
-    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    env_file:
+      - gamification_backend/.env
     volumes:
-      - .:/app
-      - static_volume:/app/static
-      - media_volume:/app/media
+      - static_volume:/code/static
+      - media_volume:/code/media
     ports:
       - 8000:8000
     depends_on:
@@ -32,13 +32,21 @@ services:
       - DATABASE_URL=postgres://myuser:mypassword@db:5432/mydatabase
       - CELERY_BROKER_URL=redis://redis:6379/0
 
+#  client:
+#    build:
+#      context: ./Gamification_frontend
+#      dockerfile: Dockerfile
+#    ports:
+#      - "3000:3000"
+#    depends_on:
+#      - server
+
   celery:
     build:
-      context: .
+      context: gamification_backend
       dockerfile: Dockerfile_celery
-    command: celery -A core worker --loglevel=info
-    volumes:
-      - .:/app
+    env_file:
+      - gamification_backend/.env
     depends_on:
       - db
       - redis
@@ -51,3 +59,4 @@ volumes:
   postgres_data:
   static_volume:
   media_volume:
+#  gamification_client:

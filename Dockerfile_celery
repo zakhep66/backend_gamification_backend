@@ -5,21 +5,18 @@ FROM python:3.9-slim-buster
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 
-# Создаем директорию для нашего приложения
-RUN mkdir /app
-
 # Устанавливаем рабочую директорию
-WORKDIR /app
+WORKDIR /code
 
 # Копируем файлы зависимостей в директорию приложения
-COPY req.txt /app/
+COPY req.txt /code/
 
 # Устанавливаем зависимости
 RUN python -m pip install --upgrade pip
 RUN pip install --no-cache-dir -r req.txt
 
 # Копируем все файлы проекта в директорию приложения
-COPY . /app/
+COPY . .
 
 # Запускаем Celery worker
 CMD ["celery", "-A", "core", "worker", "--loglevel=info"]
