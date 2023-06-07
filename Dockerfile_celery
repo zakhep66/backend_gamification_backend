@@ -17,6 +17,3 @@ RUN pip install --no-cache-dir -r req.txt
 
 # Копируем все файлы проекта в директорию приложения
 COPY . .
-
-# Запускаем Celery worker
-CMD ["celery", "-A", "core", "worker", "--loglevel=info"]
