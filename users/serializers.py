@@ -93,7 +93,7 @@ class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 		return instance
 
 	def to_internal_value(self, data):
-		direction_data = data.pop('direction', [])
+		direction_data = data.pop('direction', None)
 		student_profile_data = data.pop('student_profile', None)
 		validated_data = super().to_internal_value(data)
 
@@ -102,8 +102,8 @@ class StudentSerializer(BaseUserSerializer, GetStudentInfo):
 			student_profile_serializer.is_valid(raise_exception=True)
 			validated_data['student_profile'] = student_profile_serializer.validated_data
 
-		if direction_data:
-			validated_data['direction'] = direction_data
+		if direction_data is not None:
+			validated_data['direction'] = direction_data if direction_data else []
 
 		return validated_data
 
