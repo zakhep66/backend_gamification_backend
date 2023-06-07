@@ -5,6 +5,7 @@ from market.views import StoreProductViewSet, StoreHistoryViewSet
 
 router = DefaultRouter()
 router.register(r'store_product', StoreProductViewSet, basename='store_product')
+router.register(r'store_history', StoreHistoryViewSet, basename='store_history')
 all_student_product = StoreProductViewSet.as_view({'get': 'all_student_product'}, basename='all_student_product')
 opportunity_student_buy = StoreProductViewSet.as_view({'get': 'opportunity_student_buy'}, basename='opportunity_student_buy')
 market_shop = StoreHistoryViewSet.as_view({'post': 'market_shop'}, basename='market_shop')
