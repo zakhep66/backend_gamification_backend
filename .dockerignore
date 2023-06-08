@@ -14,3 +14,5 @@ migrations/
 node_modules/
 bower_components/
 venv
+Dockerfile_celery
+Dockerfile_django
